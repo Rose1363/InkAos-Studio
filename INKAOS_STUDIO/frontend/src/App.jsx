@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import "./App.css";
 import Header from "./components/UI/Header";
 import Footer from "./components/UI/Footer";
 import toast, { Toaster } from "react-hot-toast";
@@ -21,11 +20,17 @@ function App() {
   return (
     <>
       <Header />
-      <main className="min-h-[100vh]">
+      <main className="min-h-[80vh]">
         <Outlet />
       </main>
       <Footer />
-      <Toaster />
+      <Toaster 
+        toastOptions={{
+          duration: 5000, // Thời gian hiển thị (ms)
+          style: {
+            zIndex: 100, // Cao hơn modal
+          },
+        }}/>
     </>
   );
 }

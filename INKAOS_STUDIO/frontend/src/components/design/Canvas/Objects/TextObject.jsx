@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Text, Transformer } from 'react-konva';
 
-const TextObject = ({ obj, onSelect, onUpdate, isSelected, canvasWidth, canvasHeight }) => {
+const TextObject = ({ obj, onSelect, onUpdate, isSelected, onDelete, canvasWidth, canvasHeight }) => {
   const textRef = useRef(null);
   const transformerRef = useRef(null);
 
@@ -11,6 +11,19 @@ const TextObject = ({ obj, onSelect, onUpdate, isSelected, canvasWidth, canvasHe
       transformerRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
+
+
+     useEffect(() => {
+      const handleKeyDown = (e) => {
+        if (isSelected && e.key === 'Delete' && onDelete) {
+          onDelete(obj.id);
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }, [isSelected, obj.id, onDelete]);
 
   // Xử lý sự kiện nhấp đúp để chỉnh sửa văn bản
   const handleDblClick = () => {

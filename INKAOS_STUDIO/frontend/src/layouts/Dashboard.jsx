@@ -1,19 +1,101 @@
 import React from "react";
-import UserMenu from "../components/UI/UserMenu";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
+import Devider from "../components/UI/Devider"; 
 
 const Dashboard = () => {
   return (
-    <section className="bg-white">
+    <section className="bg-white min-h-screen">
       <div className="container mx-auto p-3 flex">
-        {/* Left column for UserMenu */}
-        <div className="w-[280px] py-4 sticky top-24 overflow-y-auto">
-          <UserMenu />
+        
+        <div className="flex-[1] py-4 sticky top-50 border-gray-100 border-r-2 pl-5 text-xl">
+          <div className="text-neutral-700 p-3">
+            {/* Tài khoản người dùng */}
+            <div className="text-lg font-semibold mb-2">Tài khoản</div>
+            <div className="grid text-sm gap-2 mb-4">
+              <Link
+                to={"/dashboard/profile"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Hồ sơ của tôi
+              </Link>
+              <Link
+                to={"/dashboard/address"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Địa chỉ
+              </Link>
+            </div>
+
+            {/* Quản lý của admin */}
+            <Devider />
+            <div className="text-lg font-semibold mb-2">Quản lý</div>
+            <div className="grid text-sm gap-2 mb-4">
+              <Link
+                to={"/dashboard/category"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Danh mục sản phẩm
+              </Link>
+              <Link
+                to={"/dashboard/product"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Sản phẩm
+              </Link>
+              <Link
+                to={"/dashboard/upload-product"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Thêm sản phẩm
+              </Link>
+              <Link
+                to={"/dashboard/design-theme"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Phong cách thiết kế
+              </Link>
+              <Link
+                to={"/dashboard/design"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Thiết kế
+              </Link>
+              <Link
+                to={"/dashboard/upload-design"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Thêm thiết kế
+              </Link>
+            </div>
+
+            {/* Đơn mua */}
+            <Devider />
+            <div className="text-lg font-semibold mb-2">Đơn mua</div>
+            <div className="grid text-sm gap-2 mb-4">
+              <Link
+                to={"/dashboard/my-orders"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Đơn hàng
+              </Link>
+            </div>
+
+            {/* Đăng xuất */}
+            <Devider />
+            <div className="grid text-sm gap-2">
+              <Link
+                to={"/"} 
+                className="text-left px-2 hover:font-bold"
+              >
+                Đăng xuất
+              </Link>
+            </div>
+          </div>
         </div>
 
-        {/* Right column for content */}
-        <div className="flex-grow p-4">
-          <Outlet></Outlet>
+        
+        <div className="flex-[3]">
+          <Outlet />
         </div>
       </div>
     </section>

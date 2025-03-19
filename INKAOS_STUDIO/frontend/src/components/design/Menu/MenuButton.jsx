@@ -7,11 +7,13 @@ const MenuButton = ({icon, lable, title, onClick, hoverColor}) => {
       title={title}
       onClick={onClick}>
         <div className='flex flex-col items-center'>
+         {/* <div className='group-hover:bg-gray-700 group-hover:text-pink-300 p-1.5 rounded-xl'> */}
             <div className={`group-hover:bg-gray-700 group-hover:text-${hoverColor} p-1.5 rounded-xl`}>
                 {icon}
             </div>
             <span className=' text-xs'>{lable}</span>
         </div>
+        
     </button>
   )
 }

@@ -10,7 +10,7 @@ const OptionsPanel = ({
 }) => {
   
   return (
-    <div>
+    <div className="w-30">
       <h3>Tuy chon</h3>
       <Devider/>
       {selectedObject.type === "text" && 

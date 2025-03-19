@@ -220,6 +220,8 @@ export async function uploadAvt(request, response) {
         })
         return response.json({
             message : "upload avt profile",
+            success: true,
+            error: false,
             data : {
                 _id : userId,
                 avatar : upload.url
@@ -437,7 +439,7 @@ export async function resetPassword(request, response) {
 export async function refreshToken(request, response) {
     try {
         const refreshToken = request.cookies.refreshToken 
-        || request.header.authorization.split(" ")[1]
+        || request?.headers?.authorization?.split(" ")[1]
         
         if(!refreshToken){
             return response.status(400).json({
@@ -489,7 +491,7 @@ export async function refreshToken(request, response) {
     }
 }
 
-//get login user info
+
 export async function userDetailLogin(request, response) {
     try {
         const userId = request.userId

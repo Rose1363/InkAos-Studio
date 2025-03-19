@@ -1,25 +1,46 @@
 import {React, useState, useRef} from 'react';
+import uploadImage from '../../../../utils/uploadImage';
 
 const ImageInput = ({ handleImageUpload }) => {
- const [uploadedImages, setUploadedImages] = useState([]); // Lưu danh sách ảnh đã tải lên
-   const fileInputRef = useRef(null); // Ref để kích hoạt input file
+ const [uploadedImages, setUploadedImages] = useState([]); 
  
-   // Xử lý khi nhấn nút để mở file picker
+ const fileInputRef = useRef(null); 
+ 
+  
    const handleButtonClick = () => {
      fileInputRef.current.click();
    };
  
    // Xử lý khi chọn file
-   const handleChange = (e) => {
-     const file = e.target.files[0];
-     if (file) {
-       const imageUrl = URL.createObjectURL(file); // Tạo URL để hiển thị ảnh
-       setUploadedImages((prev) => [...prev, imageUrl]); // Thêm URL của ảnh vào danh sách
-       handleImageUpload(e); // Gọi hàm upload từ parent
-     }
-   };
+  //  const handleChange = async(e) => {
+  //    const file = e.target.files[0];
+  //    if (file) {
+  //      const imageUrl = URL.createObjectURL(file); // Tạo URL để hiển thị ảnh
+  //      setUploadedImages((prev) => [...prev, imageUrl]); // Thêm URL của ảnh vào danh sách
+  //      handleImageUpload(e); // Gọi hàm upload từ parent
+  //    }
+   
+  //  };
+  const handleChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+  
+    try {
+      const response = await uploadImage(file);
+      console.log('Upload response:', response); // Debug response
+      if (response?.data?.data?.imageUrl) {
+        const imageUrl = response.data.data.imageUrl;
+        setUploadedImages((prev) => [...prev, imageUrl]);
+        handleImageUpload(e);
+      } else {
+        console.log('Failed to upload image. Response:', response); // Log response khi thất bại
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error.response?.data || error);
+    }
+  };
  
-   // Xử lý khi nhấp vào ảnh đã tải lên để thêm vào Canvas
+  
    const handleImageClick = (imageUrl) => {
      const img = new window.Image();
      img.src = imageUrl;
@@ -34,7 +55,7 @@ const ImageInput = ({ handleImageUpload }) => {
          scaleY: 0.5,
          draggable: true,
        };
-       handleImageUpload(null, newImage); // Gọi lại với đối tượng ảnh mới
+       handleImageUpload(null, newImage); 
      };
    };
    return (
@@ -53,14 +74,14 @@ const ImageInput = ({ handleImageUpload }) => {
          className="w-full"
          hidden
        />
-       {/* Hiển thị ảnh đã tải lên */}
+       
        {uploadedImages.length > 0 && (
          <div className="mt-4 grid grid-cols-2 gap-4">
          {uploadedImages.map((imageUrl, index) => (
            <div
              key={index}
              className="w-full cursor-pointer"
-             onClick={() => handleImageClick(imageUrl)} // Thêm ảnh vào Canvas khi nhấp
+             onClick={() => handleImageClick(imageUrl)} 
            >
              <img
                src={imageUrl}

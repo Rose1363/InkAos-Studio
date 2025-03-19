@@ -2,6 +2,7 @@ import React from 'react'
 import { RiBringToFront } from "react-icons/ri";
 import { RiSendToBack } from "react-icons/ri";
 const LayerControls = ({bringToFront, sendToBack}) => {
+  
   return (
     <div >
       <label className="block mb-1">Layer</label>

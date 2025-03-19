@@ -11,9 +11,9 @@ const CanvasContainer = ({
   activePanel,
   selectedId,
   onDelete,
-  typeShirt,  // Receive the typeShirt prop
+  typeShirt, 
 }) => {
-  const baseContainerWidth = 800;
+  const baseContainerWidth = 900;
   const containerHeight = 900;
 
   const isLeftPanelOpen = !!activePanel;
@@ -41,7 +41,7 @@ const CanvasContainer = ({
   };
 
   return (
-    <div className='flex justify-center items-center h-full w-full'>
+    <div className='bg-slate-100 flex justify-center items-center h-full w-full'>
       <div
         className='relative bg-amber-700 bg-cover bg-center h-[900px]'
         style={{

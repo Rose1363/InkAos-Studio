@@ -1,5 +1,5 @@
 import React from 'react'
-import DesignMenuBar from '../components/design/Menu/DesignMenu'
+import DesignMenu from '../components/design/Menu/DesignMenu'
 import { useState } from 'react'
 import TextInput from '../components/design/Menu/Inputs/DesignTextInput'
 import ImageInput from '../components/design/Menu/Inputs/ImageUploadInput'
@@ -10,7 +10,7 @@ const Design = () => {
   const [activePanel, setActivePanel] = useState(null);
   const [objects, setObjects] = useState([])
   const [selectedId, setSelectedId] = useState(null);
-  const [typeShirt, setTypeShirt] = useState('tanktop');
+  const [typeShirt, setTypeShirt] = useState('tshirt');
   const togglePanel = (panel) => {
     setActivePanel(activePanel === panel ? null : panel)
   } 
@@ -109,8 +109,8 @@ const Design = () => {
     setTypeShirt(type)
   }
   return (
-    <div className='flex h-screen'>
-      <DesignMenuBar togglePanel={togglePanel}/>
+    <div className='flex h-screen bg-slate-700'>
+      <DesignMenu togglePanel={togglePanel}/>
       {
         activePanel && (
           <div className='bg-slate-50 w-80'>
@@ -129,8 +129,8 @@ const Design = () => {
         onDelete={deleteObject}
         typeShirt={typeShirt}
       />
-      {selectedId && (
-        <div className='w-90 bg-gray-50 p-4'>
+      {activePanel && (
+        <div className='w-45 bg-gray-50 p-4'>
           <OptionsPanel
             selectedObject={objects.find((obj)=> obj.id === selectedId)|| {}}
             updateObject={(updates) => updateObject(selectedId, updates)}

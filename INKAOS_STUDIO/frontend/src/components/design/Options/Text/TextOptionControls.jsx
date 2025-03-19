@@ -7,7 +7,7 @@ import FontSizeSetting from "./FontSizeSetting";
 import StyleSettings from "./StyleSettings"
 const TextOptions = ({ selectedObject, updateObject, bringToFront, sendToBack }) => {
   return (
-    <div>
+    <div className="p-4 flex flex-col gap-3">
       <LayerControls bringToFront={bringToFront} sendToBack={sendToBack}/>
       <FontSettings selectedObject={selectedObject} updateObject={updateObject}/>
       <FontSizeSetting selectedObject={selectedObject} updateObject={updateObject} />

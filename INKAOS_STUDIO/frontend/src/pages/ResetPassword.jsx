@@ -40,8 +40,8 @@ const ResetPassword = () => {
         const { name, value } = e.target;
     
         setData((prev) => ({
-            ...prev, // Spread the previous state
-            [name]: value, // Update the current field
+            ...prev, 
+            [name]: value, 
         }));
     };
 

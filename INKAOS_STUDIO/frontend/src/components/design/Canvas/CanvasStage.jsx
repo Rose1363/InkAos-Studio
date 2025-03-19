@@ -24,13 +24,16 @@ const CanvasStage = ({ objects, setSelectedId, updateObject, selectedId, onDelet
       {objects.map((obj) =>
           obj.type === 'text' ? (
             <TextObject
+              key={obj.id}
               obj={obj}
               onSelect={handleSelect}
               onUpdate={updateObject}
               isSelected={selectedId === obj.id}
+              onDelete={onDelete}
             />
           ) : (
             <ImageObject
+              key={obj.id}
               obj={obj}
               onSelect={handleSelect}
               onUpdate={updateObject}

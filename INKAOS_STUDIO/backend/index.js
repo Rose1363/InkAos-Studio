@@ -1,4 +1,3 @@
-// index.js
 import express from 'express';  
 import cors from 'cors';
 import helmet from 'helmet';
@@ -7,6 +6,8 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import connectDB from './config/connectDB.js';
 import userRouter from './router/user.route.js';
+import imageRouter from './router/image.route.js';
+import addressRouter from './router/address.route.js';
 dotenv.config();
 
 const app = express();
@@ -24,8 +25,9 @@ app.use(helmet(
 app.use(morgan());
 app.use(cookieParser());
 app.use(express.json());
-// Database connection
 
+
+// Database connection
 const PORT = process.env.PORT || 8080;
 
 // Routes
@@ -37,8 +39,8 @@ app.get('/', (request, response) => {
 });
 
 app.use('/api/user', userRouter)
-
-
+app.use('/api/image', imageRouter)
+app.use('/api/address', addressRouter)
 // Start the server
 connectDB().then(()=>{
     app.listen(PORT, () => {

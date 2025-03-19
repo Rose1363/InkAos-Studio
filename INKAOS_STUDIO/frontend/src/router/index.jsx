@@ -9,77 +9,105 @@ import ForgotPassword from "../pages/ForgotPassword";
 import OtpVerification from "../pages/OtpVerification";
 import ResetPassword from "../pages/ResetPassword";
 import Dashboard from "../layouts/Dashboard";
-import  Profile  from "../pages/Profile";
-import  MyOrder  from "../pages/MyOrder";
-import  Address  from "../pages/Address";
-
+import Profile from "../pages/Profile";
+import MyOrder from "../pages/MyOrder";
+import Address from "../pages/AddressList";
+import ProductDisplay from "../pages/ProductDisplay";
+import Checkout from "../pages/Checkout";
+import AdminCategrory from "../pages/AdminCategrory";
+import AdminProductList from "../pages/AdminProductList";
+import AdminUploadProduct from "../pages/AdminUploadProduct";
+import AdminUploadDesign from "../pages/AdminUploadDesign";
+import AdminDesignList from "../pages/AdminDesignList";
 const router = createBrowserRouter([
-    {
-        path: "/",
-        element: <App/>,
+  {
+    path: "/",
+    element: <App />,
+    children: [
+      {
+        path: "",
+        element: <Home />,
+      },
+      {
+        path: "search",
+        element: <SearchPage />,
+      },
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "signup",
+        element: <Register />,
+      },
+
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "otp-verify",
+        element: <OtpVerification />,
+      },
+      {
+        path: "reset-password",
+        element: <ResetPassword />,
+      },
+      {
+        path: "dashboard",
+        element: <Dashboard />,
         children: [
-            {
-                path: "",
-                element: <Home/>
-            },
-            {
-                path: "search",
-                element: <SearchPage/>
-            },
-            {
-                path: "login",
-                element: <Login/>
-            },
-            {
-                path: "signup",
-                element: <Register/>
-            },
-            
-            {
-                path: "forgot-password",
-                element: <ForgotPassword/>
-            },
-            {
-                path: "otp-verify",
-                element : <OtpVerification/>
-            },
-            {
-                path: "reset-password",
-                element : <ResetPassword/>
-            },
-            {
-                path: "dashboard",
-                element : <Dashboard/>,
-                children : [
-                    {
-                        path : "profile",
-                        element : <Profile/>
-                    },
-                    {
-                        path : "my-orders",
-                        element : <MyOrder/>
-                    },
-                    {
-                        path : "address",
-                        element : <Address/>
-                    },
+          {
+            path: "profile",
+            element: <Profile />,
+          },
+          {
+            path: "my-orders",
+            element: <MyOrder />,
+          },
+          {
+            path: "address",
+            element: <Address />,
+          },
+          {
+            path: "category",
+            element: <AdminCategrory />, 
+          },
+          {
+            path: "product",
+            element: <AdminProductList />, 
+          },
+          {
+            path: "upload-product",
+            element: <AdminUploadProduct />, 
+          },
+          
+          {
+            path: "design",
+            element: <AdminDesignList />, 
+          },
+          {
+            path: "upload-design",
+            element: <AdminUploadDesign />, 
+          },
+        ],
+      },
 
-                ]
-            },
-           
-            {
-                path: "design",
-                element: <Design/>,
-                children : [
-                    {
-                        
-                    }
-                ]
-            },
-            
-
-        ]
-    }
-])
+      {
+        path: "design",
+        element: <Design />,
+      },
+      {
+        path: "product/:id",
+        element: <ProductDisplay />,
+      },
+      {
+        path: "checkout",
+        element: <Checkout />,
+      },
+     
+    ],
+  },
+]);
 
 export default router;
