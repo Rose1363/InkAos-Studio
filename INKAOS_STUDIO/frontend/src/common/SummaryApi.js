@@ -38,9 +38,17 @@ const SummaryApi = {
         url: '/api/user/update-info',
         method: "put"
     },
-    addImage: {
+    addCategory: {
+        url: "/api/category/add",
+        method: "post",
+    },
+    uploadImage: {
         url: "/api/image/upload",
         method: "post",
+    },
+    getCategory: {
+        url: "/api/category/get",
+        method: "get",
     },
     createAddress: {
         url: "/api/address/create",

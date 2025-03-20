@@ -1,5 +1,5 @@
 import {React, useState, useRef} from 'react';
-import uploadImage from '../../../../utils/uploadImage';
+
 
 const ImageInput = ({ handleImageUpload }) => {
  const [uploadedImages, setUploadedImages] = useState([]); 
@@ -12,37 +12,37 @@ const ImageInput = ({ handleImageUpload }) => {
    };
  
   //  Xử lý khi chọn file
-  //  const handleChange = async(e) => {
-  //    const file = e.target.files[0];
-  //    if (file) {
-  //      const imageUrl = URL.createObjectURL(file); // Tạo URL để hiển thị ảnh
-  //      setUploadedImages((prev) => [...prev, imageUrl]); // Thêm URL của ảnh vào danh sách
-  //      handleImageUpload(e); // Gọi hàm upload từ parent
-  //    }
+   const handleChange = async(e) => {
+     const file = e.target.files[0];
+     if (file) {
+       const imageUrl = URL.createObjectURL(file); // Tạo URL để hiển thị ảnh
+       setUploadedImages((prev) => [...prev, imageUrl]); // Thêm URL của ảnh vào danh sách
+       handleImageUpload(e); // Gọi hàm upload từ parent
+     }
    
-  //  };
+   };
 
- const handleChange = async (e) => {
-  console.log('Event triggered:', e);
-  const file = e.target.files[0];
-  if (!file) return;
+//  const handleChange = async (e) => {
+//   console.log('Event triggered:', e);
+//   const file = e.target.files[0];
+//   if (!file) return;
 
-  try {
-    console.log('Uploading file:', file.name);
-    const response = await uploadImage(file);
-    console.log('Upload response:', response);
-    if (response?.data?.data?.imageUrl) {
-      const imageUrl = response.data.data.imageUrl;
-      console.log('Image URL:', imageUrl);
-      setUploadedImages((prev) => [...prev, imageUrl]);
-      handleImageUpload(e);
-    } else {
-      console.log('Failed to upload image. Response:', response);
-    }
-  } catch (error) {
-    console.error('Error uploading image:', error.response?.data || error);
-  }
-};
+//   try {
+//     console.log('Uploading file:', file.name);
+//     const response = await uploadImage(file);
+//     console.log('Upload response:', response);
+//     if (response?.data?.data?.imageUrl) {
+//       const imageUrl = response.data.data.imageUrl;
+//       console.log('Image URL:', imageUrl);
+//       setUploadedImages((prev) => [...prev, imageUrl]);
+//       handleImageUpload(e);
+//     } else {
+//       console.log('Failed to upload image. Response:', response);
+//     }
+//   } catch (error) {
+//     console.error('Error uploading image:', error.response?.data || error);
+//   }
+// };
  
   
    const handleImageClick = (imageUrl) => {

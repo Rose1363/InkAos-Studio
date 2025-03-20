@@ -8,6 +8,7 @@ import AddAddress from "../components/UI/AddAddress";
 import { MdDeleteOutline, MdOutlineEditLocationAlt } from "react-icons/md";
 
 import EditAddress from "../components/UI/EditAddress";
+import Loading from "../components/UI/Loading";
 
 const Address = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ const Address = () => {
       </div>
       <div className="p-3 mb-3 bg-blue-50 rounded-lg">
         {loading ? (
-          <p>Đang tải địa chỉ...</p> 
+           <Loading/>
         ) : addressList.length > 0 ? (
           addressList.map((address, index) => (
             <div

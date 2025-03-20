@@ -7,6 +7,7 @@ import SummaryApi from "../../common/SummaryApi";
 import { logout } from "../../store/userSlice";
 import toast from "react-hot-toast";
 import AxiosToastError from "../../utils/AxiosToastError";
+import IsAdmin from "../../utils/IsAdmin";
 const UserMenu = ({ close }) => {
   const user = useSelector((state) => state.user);
 
@@ -43,6 +44,7 @@ const UserMenu = ({ close }) => {
         <div>
           <div className="text-sm font-semibold max-w-[220px] text-left">
             {user.name}
+            <span className="text-red-700 text-sm px-1">{user.role === "(Admin)" ? "Admin" : ""}</span>
           </div>
           <div className="text-xs text-blue-500 hover:underline">
             <Link onClick={handleClose} to={"/dashboard/profile"}>
@@ -53,13 +55,16 @@ const UserMenu = ({ close }) => {
       </div>
       <Devider />
       <div className="grid text-sm gap-2">
-        <Link
-          onClick={handleClose}
-          to={"/dashboard/category"}
-          className="text-left px-2 hover:font-bold"
-        >
-          Quản lý
-        </Link>
+        {IsAdmin(user.role) && (
+          <Link
+            onClick={handleClose}
+            to={"/dashboard/category"}
+            className="text-left px-2 hover:font-bold"
+          >
+            Quản lý
+          </Link>
+        )}
+
         <Link
           onClick={handleClose}
           to={"/dashboard/my-orders"}
