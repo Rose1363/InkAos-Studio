@@ -5,6 +5,10 @@ const imageScheme = new mongoose.Schema({
         type : String,
         default : ""
     },
+    
+    
+}, {
+    timestamps : true
 })
 
 const ImageModel = new mongoose.model("Image",imageScheme)

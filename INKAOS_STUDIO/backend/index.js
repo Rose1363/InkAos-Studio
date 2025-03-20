@@ -8,6 +8,7 @@ import connectDB from './config/connectDB.js';
 import userRouter from './router/user.route.js';
 import imageRouter from './router/image.route.js';
 import addressRouter from './router/address.route.js';
+import textDesignRouter from './router/textDesign.route.js';
 dotenv.config();
 
 const app = express();
@@ -41,6 +42,7 @@ app.get('/', (request, response) => {
 app.use('/api/user', userRouter)
 app.use('/api/image', imageRouter)
 app.use('/api/address', addressRouter)
+app.use('/api/text', textDesignRouter)
 // Start the server
 connectDB().then(()=>{
     app.listen(PORT, () => {

@@ -11,7 +11,7 @@ const ImageInput = ({ handleImageUpload }) => {
      fileInputRef.current.click();
    };
  
-   // Xử lý khi chọn file
+  //  Xử lý khi chọn file
   //  const handleChange = async(e) => {
   //    const file = e.target.files[0];
   //    if (file) {
@@ -21,24 +21,28 @@ const ImageInput = ({ handleImageUpload }) => {
   //    }
    
   //  };
-  const handleChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-  
-    try {
-      const response = await uploadImage(file);
-      console.log('Upload response:', response); // Debug response
-      if (response?.data?.data?.imageUrl) {
-        const imageUrl = response.data.data.imageUrl;
-        setUploadedImages((prev) => [...prev, imageUrl]);
-        handleImageUpload(e);
-      } else {
-        console.log('Failed to upload image. Response:', response); // Log response khi thất bại
-      }
-    } catch (error) {
-      console.error('Error uploading image:', error.response?.data || error);
+
+ const handleChange = async (e) => {
+  console.log('Event triggered:', e);
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    console.log('Uploading file:', file.name);
+    const response = await uploadImage(file);
+    console.log('Upload response:', response);
+    if (response?.data?.data?.imageUrl) {
+      const imageUrl = response.data.data.imageUrl;
+      console.log('Image URL:', imageUrl);
+      setUploadedImages((prev) => [...prev, imageUrl]);
+      handleImageUpload(e);
+    } else {
+      console.log('Failed to upload image. Response:', response);
     }
-  };
+  } catch (error) {
+    console.error('Error uploading image:', error.response?.data || error);
+  }
+};
  
   
    const handleImageClick = (imageUrl) => {

@@ -42,7 +42,7 @@ const Address = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-3 shadow-md p-3">
         <h2 className="font-semibold text-lg">Địa chỉ của tôi</h2>
         <button
           onClick={() => setOpenAddAddress(true)}

@@ -54,6 +54,10 @@ const SummaryApi = {
         url: "/api/address/update",
         method: "put",
     },
+    addText : {
+        url: "/api/text/add",
+        method: "post",
+    }
 };
 
 export default SummaryApi;

@@ -94,7 +94,7 @@ const Dashboard = () => {
         </div>
 
         
-        <div className="flex-[3]">
+        <div className="flex-[3] min-h-[80vh]">
           <Outlet />
         </div>
       </div>
