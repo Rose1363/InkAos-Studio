@@ -14,7 +14,7 @@ const productSchema = new mongoose.Schema(
 
     subCategory: {
       type: mongoose.Schema.ObjectId,
-      ref: "SubCategory", // Tham chiếu đến Category
+      ref: "SubCategory", 
     },
     price: {
       type: Number,

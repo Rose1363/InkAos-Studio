@@ -14,7 +14,7 @@ const categorySchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Tự động thêm createdAt và updatedAt
+    timestamps: true, 
   }
 );
 
