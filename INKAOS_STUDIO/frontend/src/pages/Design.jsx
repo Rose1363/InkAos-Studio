@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import DesignMenu from "../components/design/Menu/DesignMenu";
 import TextInput from "../components/design/Menu/Inputs/DesignTextInput";
 import ImageInput from "../components/design/Menu/Inputs/ImageUploadInput";
@@ -30,6 +30,20 @@ const Design = () => {
   const updateObject = (id, updates) => {
     setObjects(objects.map((obj) => (obj.id === id ? { ...obj, ...updates } : obj)));
   };
+
+
+
+useEffect(() => {
+  const handleBeforeUnload = (e) => {
+    console.log("Component unmounted or redirected");
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, []);
 
   const addText = (text) => {
     const newText = {
@@ -162,7 +176,7 @@ const Design = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-700">
+    <div className="flex h-screen bg-slate-900">
       <DesignMenu togglePanel={togglePanel} />
       {activePanel && (
         <div className="bg-slate-50 w-80">
@@ -174,6 +188,7 @@ const Design = () => {
       <div className="flex-1 flex flex-col">
         <div className="flex justify-end p-4">
           <button
+          type="button"
             onClick={saveDesign}
             className="bg-blue-500 text-white px-4 py-2 rounded"
           >

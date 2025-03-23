@@ -7,7 +7,7 @@ import IsAdmin from "../utils/IsAdmin";
 const Dashboard = () => {
   const user = useSelector((state) => state.user);
 
-  console.log("user dashboard", user);
+  // console.log("user dashboard", user);
 
   return (
     <section className="bg-white min-h-screen">

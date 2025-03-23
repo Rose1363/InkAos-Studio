@@ -6,6 +6,7 @@ import AxiosToastError from "../../utils/AxiosToastError";
 import { useDispatch } from "react-redux";
 import { handleAddAddress } from "../../store/addressSlice";
 import toast from "react-hot-toast";
+import Loading from "./Loading";
 
 const EditAddress = ({ close, data }) => {
   const dispatch = useDispatch();
@@ -55,8 +56,8 @@ const EditAddress = ({ close, data }) => {
   
     setLoading(true);
     try {
-      const updatedData = { ...formData, _id: data._id }; // Thêm _id vào dữ liệu gửi đi
-      console.log("Request Data:", updatedData); // Log để kiểm tra
+      const updatedData = { ...formData, _id: data._id };
+      console.log("Request Data:", updatedData); 
   
       const response = await Axios({
         ...SummaryApi.updateAddress,
@@ -152,7 +153,7 @@ const EditAddress = ({ close, data }) => {
                 className="p-3 bg-primary text-white font-semibold hover:bg-blue-600 w-28 rounded-md"
                 disabled={loading}
               >
-                {loading ? "Đang lưu..." : "Lưu"}
+                {loading ? (<Loading/>) : "Lưu"}
               </button>
             </div>
           </form>

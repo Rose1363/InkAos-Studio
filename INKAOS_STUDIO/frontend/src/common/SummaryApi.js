@@ -50,6 +50,14 @@ const SummaryApi = {
         url: "/api/category/get",
         method: "get",
     },
+    addSubCategory: {
+        url: "/api/subcategory/add",
+        method: "post",
+    },
+    getSubCategory: {
+        url: "/api/subcategory/get",
+        method: "get",
+    },
     createAddress: {
         url: "/api/address/create",
         method: "post",

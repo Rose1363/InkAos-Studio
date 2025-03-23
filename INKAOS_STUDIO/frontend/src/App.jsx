@@ -6,15 +6,48 @@ import { useEffect } from "react";
 import fetchUserDetails from "./utils/fetchUserDetails";
 import { setUserDetails } from "./store/userSlice";
 import { useDispatch } from "react-redux";
-
+import { setAllCategory, setAllSubCategory } from "./store/productSlice";
+import Axios from "./utils/Axios";
+import SummaryApi from "./common/SummaryApi";
 function App() {
   const dispatch = useDispatch();
   const fetchUser = async () => {
     const userData = await fetchUserDetails();
     dispatch(setUserDetails(userData.data));
   };
+
+  const fetchCategory = async () => {
+    try {
+      const response = await Axios({
+        ...SummaryApi.getCategory,
+      });
+
+      if (response.data.success) {
+        dispatch(setAllCategory(response.data.data));
+      }
+    } catch (error) {
+    } finally {
+    }
+  };
+
+  const fetchSubCategory = async () => {
+    try {
+      const response = await Axios({
+        ...SummaryApi.getSubCategory,
+      });
+
+      if (response.data.success) {
+        dispatch(setAllSubCategory(response.data.data));
+      }
+    } catch (error) {
+    } finally {
+    }
+  };
+
   useEffect(() => {
     fetchUser();
+    fetchCategory();
+    fetchSubCategory()
   }, []);
 
   return (
@@ -24,13 +57,14 @@ function App() {
         <Outlet />
       </main>
       <Footer />
-      <Toaster 
+      <Toaster
         toastOptions={{
           duration: 5000, // Thời gian hiển thị (ms)
           style: {
             zIndex: 100, // Cao hơn modal
           },
-        }}/>
+        }}
+      />
     </>
   );
 }

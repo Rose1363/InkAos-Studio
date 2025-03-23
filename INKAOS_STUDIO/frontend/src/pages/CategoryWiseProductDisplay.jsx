@@ -24,21 +24,24 @@ const CategoryWiseProductDisplay = ({loading}) => {
             ))
         }
 
-        <div className="absolute w-full flex justify-between container mx-auto left-0 right-0">
-          <button
-            onClick={handleSrcollLeft}
-            className="relative bg-white p-2 rounded-full shadow-lg hover:bg-slate-200"
-          >
-            <FaAngleLeft />
-          </button>
+<div className="absolute w-full flex justify-between container mx-auto left-0 right-0">
+  <button
+    aria-label="Scroll left" // Mô tả chức năng của nút
+    onClick={handleSrcollLeft}
+    className="relative bg-white p-2 rounded-full shadow-lg hover:bg-slate-200"
+  >
+    <FaAngleLeft />
+  </button>
 
-          <button
-            onClick={handleSrcollRight}
-            className="relative bg-white p-2 rounded-full shadow-lg hover:bg-slate-200"
-          >
-            <FaAngleRight />
-          </button>
-        </div>
+  <button
+    aria-label="Scroll right" // Mô tả chức năng của nút
+    onClick={handleSrcollRight}
+    className="relative bg-white p-2 rounded-full shadow-lg hover:bg-slate-200"
+  >
+    <FaAngleRight />
+  </button>
+</div>
+
       </div>
     </div>
   );

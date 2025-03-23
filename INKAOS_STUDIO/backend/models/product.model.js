@@ -7,15 +7,23 @@ const productSchema = new mongoose.Schema(
       required: [true, "Provide product name"],
       trim: true,
     },
-    category_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", // Tham chiếu đến Category
-      required: [true, "Provide category_id"],
+    image: {
+      type: String,
+      default: []
+    },
+
+    subCategory: {
+      type: mongoose.Schema.ObjectId,
+      ref: "SubCategory", // Tham chiếu đến Category
     },
     price: {
       type: Number,
       required: [true, "Provide product price"],
       min: [0, "Price must be a positive number"],
+    },
+    discount: {
+        type: Number,
+        defaullt: null
     },
     stock: {
       type: Number,
@@ -27,10 +35,7 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    image_url: {
-      type: String,
-      trim: true,
-    },
+    
   },
   {
     timestamps: true, // Tự động thêm createdAt và updatedAt

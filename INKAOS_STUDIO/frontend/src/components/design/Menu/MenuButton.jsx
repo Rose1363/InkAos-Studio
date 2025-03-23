@@ -1,21 +1,21 @@
-import React from 'react'
+import React from 'react';
 
-const MenuButton = ({icon, lable, title, onClick, hoverColor}) => {
+const MenuButton = ({ icon, label, title, onClick, hoverClass }) => {
   return (
     <button 
-      className='group flex flex-col items-center mb-4'
+      className="group flex flex-col items-center mb-4"
       title={title}
+      aria-label={label}  // Thêm aria-label để hỗ trợ trợ năng
       onClick={onClick}>
-        <div className='flex flex-col items-center'>
-         {/* <div className='group-hover:bg-gray-700 group-hover:text-pink-300 p-1.5 rounded-xl'> */}
-            <div className={`group-hover:bg-gray-700 group-hover:text-${hoverColor} p-1.5 rounded-xl`}>
-                {icon}
-            </div>
-            <span className=' text-xs'>{lable}</span>
+      
+      <div className="flex flex-col items-center">
+        <div className={`group-hover:bg-gray-700 ${hoverClass} p-1.5 rounded-xl`}>
+          {icon}
         </div>
-        
+        <span className="text-xs">{label}</span>
+      </div>
     </button>
-  )
-}
+  );
+};
 
-export default MenuButton
+export default MenuButton;

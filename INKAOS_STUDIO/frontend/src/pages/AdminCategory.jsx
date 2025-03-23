@@ -1,34 +1,40 @@
 import React, { useEffect, useState } from "react";
 import AddCategory from "../components/UI/AddCategory";
 import Loading from "../components/UI/Loading";
-import emptyBox from "../assets/emptyBox.jpeg";
 import NoData from "../components/UI/NoData";
-import Axios from "../utils/Axios";
+import { useDispatch, useSelector } from "react-redux";
 import SummaryApi from "../common/SummaryApi";
-const AdminCategrory = () => {
+import Axios from "../utils/Axios";
+const AdminCategory = () => {
   const [openAddCategory, setOpenAddCategory] = useState(false);
   const [loading, setLoading] = useState(false);
   const [categoryData, setCategoryData] = useState([]);
+  const dispatch = useDispatch();
+  // const allCategory = useSelector(state=>state.product.allCategory)
+
+  // useEffect(()=>{
+  //   setCategoryData(allCategory)
+  // },[allCategory])
+
   const fetchCategory = async () => {
     try {
       setLoading(true);
       const response = await Axios({
         ...SummaryApi.getCategory,
       });
-      // console.log(response.data.data);
 
       if (response.data.success) {
-        setCategoryData(response.data.data);
+        dispatch(setCategoryData(response.data.data));
       }
     } catch (error) {
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchCategory();
   }, []);
+  console.log(categoryData);
   return (
     <section>
       <div className="flex items-center justify-between mb-3 shadow-md p-3">
@@ -42,29 +48,32 @@ const AdminCategrory = () => {
       </div>
 
       {!categoryData[0] && !loading && <NoData />}
-      <div className="p-4 flex md:gap-3 lg:gap-5 ">
-      {categoryData.map((category, index) => (
-        <div
-          key={index}
-          className="grid items-center gap-2 p-2 shadow bg-white rounded-lg w-36"
-        >
-          <img
-            src={category.image}
-            alt={category.name}
-            className="w-full h-full object-scale-down border border-gray-200"
-          />
+      <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+        {categoryData.map((category, index) => (
+          <div
+            key={index}
+            className="grid items-center gap-2 p-2 shadow bg-white rounded-lg w-36"
+          >
+            <img
+              src={category.image}
+              alt={category.name}
+              className="w-full h-full object-scale-down border border-gray-200"
+            />
 
-          <p className="text-sm font-medium text-center">{category.name}</p>
-        </div>
-      ))}
+            <p className="text-sm font-medium text-center">{category.name}</p>
+          </div>
+        ))}
       </div>
 
       {loading && <Loading />}
       {openAddCategory && (
-        <AddCategory fetchData={fetchCategory} close={() => setOpenAddCategory(false)} />
+        <AddCategory
+          fetchData={fetchCategory}
+          close={() => setOpenAddCategory(false)}
+        />
       )}
     </section>
   );
 };
 
-export default AdminCategrory;
+export default AdminCategory;

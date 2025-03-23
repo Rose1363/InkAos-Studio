@@ -5,6 +5,7 @@ import Axios from "../../utils/Axios";
 import SummaryApi from "../../common/SummaryApi";
 import toast from "react-hot-toast";
 import AxiosToastError from "../../utils/AxiosToastError";
+import Loading from "./Loading";
 
 const AddCategory = ({ fetchData, close }) => {
   const [loading, setLoading] = useState(false);
@@ -51,7 +52,7 @@ const AddCategory = ({ fetchData, close }) => {
 
     const response = await uploadImage(file);
     const imageUrl = response.data.data.url;
-    console.log("categorImage", response.data.data.url);
+    // console.log("categorImage", response.data.data.url);
     setData((prev) => ({
       ...prev,
       image: imageUrl,
@@ -130,7 +131,7 @@ const AddCategory = ({ fetchData, close }) => {
                 : "bg-gray-200 text-sm  p-3 px-3 text-gray-400 rounded"
             }`}
           >
-            {loading ? "....." : "Thêm danh mục"}
+            {loading ? (<Loading/>) : "Thêm danh mục"}
           </button>
         </form>
       </div>

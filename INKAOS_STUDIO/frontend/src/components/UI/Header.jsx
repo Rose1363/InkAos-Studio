@@ -26,8 +26,8 @@ const Header = () => {
       <div className="container mx-auto flex justify-between items-center h-full px-4">
         {/* logo */}
         <div className="h-full">
-          <Link to={"/"} className="h-full flex justify-center items-center">
-            <img src={logo} width={170} alt="InkAos Studio" />
+          <Link to={"/"} className="h-full flex justify-center items-center z-20">
+            <img src={logo} width={140} alt="InkAos Studio" className="object-contain h-full" />
           </Link>
         </div>
         {/* search */}
@@ -38,13 +38,14 @@ const Header = () => {
         <div className="items-center text-neutral-200 flex  gap-10 w-ful">
           {/* pen */}
           <div className="animate-pulse text-primary-darker">
-            <button onClick={() => navigate("/design")}>
+            <button aria-label="design" onClick={() => navigate("/design")}>
               <PiMagicWand size={35} />
             </button>
           </div>
           {/* Cart */}
           <div>
             <button
+            aria-label="cart"
               onClick={() => setOpenCartSection(true)}
               className="text-primary-darker relative hidden lg:block"
             >

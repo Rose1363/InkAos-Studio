@@ -52,14 +52,14 @@ const Address = () => {
           Thêm địa chỉ
         </button>
       </div>
-      <div className="p-3 mb-3 bg-blue-50 rounded-lg">
+      <div className="p-3 mb-3  rounded-lg">
         {loading ? (
            <Loading/>
         ) : addressList.length > 0 ? (
           addressList.map((address, index) => (
             <div
               key={index} 
-              className="flex items-center justify-between w-full bg-white p-3 mt-2 rounded-md cursor-pointer"
+              className="flex items-center justify-between w-full bg-gray-100 p-3 mt-2 rounded-md cursor-pointer"
             >
               <div>
                 <div className="flex gap-3">
@@ -77,11 +77,12 @@ const Address = () => {
                     setOpenEdit(true);
                     setEditData(address);
                   }}
-                  className="p-2 text-gray-600 hover:text-blue-500 hover:bg-blue-100 rounded-full transition-all duration-200 active:scale-85"
+                  className="p-2 text-blue-900 hover:text-blue-500 hover:bg-blue-100 rounded-full transition-all duration-200 active:scale-85"
+                aria-label="edit address"
                 >
                   <MdOutlineEditLocationAlt size={20} />
                 </button>
-                <button className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-100 rounded-full transition-all duration-200 active:scale-85">
+                <button aria-label="delete address" className="p-2 text-red-900 hover:text-red-500 hover:bg-red-100 rounded-full transition-all duration-200 active:scale-85">
                   <MdDeleteOutline size={20} />
                 </button>
               </div>

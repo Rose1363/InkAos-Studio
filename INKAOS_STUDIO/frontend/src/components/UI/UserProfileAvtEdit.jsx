@@ -5,6 +5,7 @@ import SummaryApi from "../../common/SummaryApi";
 import AxiosToastError from "../../utils/AxiosToastError";
 import { updateAvatar } from "../../store/userSlice";
 import { IoClose } from "react-icons/io5";
+import Loading from "./Loading";
 const UserProfileAvtEdit = ({ close }) => {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -68,7 +69,7 @@ const UserProfileAvtEdit = ({ close }) => {
                     : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                 }`}
               >
-                {loading ? "Loading..." : "Chon anh trong may"}
+                {loading ? (<Loading/>) : "Chon anh trong may"}
               </div>
               <input
                 onChange={handleUploadAvatar}
