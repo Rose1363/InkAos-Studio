@@ -13,7 +13,7 @@ const AspectRatioSettings = ({updateObject, selectedObject}) => {
 
     return (
     <div >
-    <label className="block mb-1">Aspect Ratio</label>
+    <label className="block mb-1">Aspect</label>
     <div className="flex items-center gap-2">
       <button
         onClick={() => handleAspectRatio('fill')}

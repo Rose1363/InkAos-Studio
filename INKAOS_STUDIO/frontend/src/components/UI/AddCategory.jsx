@@ -131,7 +131,7 @@ const AddCategory = ({ fetchData, close }) => {
                 : "bg-gray-200 text-sm  p-3 px-3 text-gray-400 rounded"
             }`}
           >
-            {loading ? (<Loading/>) : "Thêm danh mục"}
+            {loading ? (<Loading size="medium"/>) : "Thêm danh mục"}
           </button>
         </form>
       </div>

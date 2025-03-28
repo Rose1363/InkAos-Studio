@@ -60,12 +60,7 @@ const Dashboard = () => {
                   >
                     Sản phẩm
                   </Link>
-                  <Link
-                    to={"/dashboard/upload-product"}
-                    className="text-left px-2 hover:font-bold"
-                  >
-                    Thêm sản phẩm
-                  </Link>
+                 
                   <Link
                     to={"/dashboard/design-theme"}
                     className="text-left px-2 hover:font-bold"

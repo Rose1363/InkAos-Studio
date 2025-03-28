@@ -1,13 +1,13 @@
 import React from "react";
 import LayerControls from "../General/LayerControls";
 import FontSettings from "./FontSettings";
-import ColorSettings from "./ColorSettings";
+import ColorSettings from "../General/ColorSettings";
 import AlignmentSettings from "./AlignmentSettings";
 import FontSizeSetting from "./FontSizeSetting";
 import StyleSettings from "./StyleSettings"
 const TextOptions = ({ selectedObject, updateObject, bringToFront, sendToBack }) => {
   return (
-    <div className="p-4 flex flex-col gap-3">
+    <div className="p-3 flex flex-col gap-3">
       <LayerControls bringToFront={bringToFront} sendToBack={sendToBack}/>
       <FontSettings selectedObject={selectedObject} updateObject={updateObject}/>
       <FontSizeSetting selectedObject={selectedObject} updateObject={updateObject} />

@@ -1,8 +1,14 @@
-// src/components/TShirtDesign/Objects/ImageObject.jsx
-import React, { useRef, useEffect } from 'react';
-import { Image, Transformer } from 'react-konva';
+import React, { useRef, useEffect } from "react";
+import { Image, Transformer } from "react-konva";
 
-const ImageObject = ({ obj, onSelect, onUpdate, isSelected, onDelete, canvasWidth, canvasHeight }) => {
+const ImageObject = ({
+  obj,
+  onSelect,
+  onUpdate,
+  isSelected,
+  onDelete,
+ 
+}) => {
   const imageRef = useRef(null);
   const transformerRef = useRef(null);
 
@@ -18,80 +24,75 @@ const ImageObject = ({ obj, onSelect, onUpdate, isSelected, onDelete, canvasWidt
       transformerRef.current.setSize({ width: paddedWidth, height: paddedHeight });
       transformerRef.current.getLayer().batchDraw();
     }
-  }, [isSelected, obj.scaleX, obj.scaleY, transformerRef]);
+  }, [isSelected, obj.scaleX, obj.scaleY]);
 
-  // Điều chỉnh vị trí nếu hình ảnh vượt ra ngoài giới hạn canvas
-  const handleBoundaries = (node) => {
-    const padding = 10;
-    const imageRect = node.getClientRect();
-    const imageWidth = imageRect.width + padding * 2;
-    const imageHeight = imageRect.height + padding * 2;
-
-    let newX = node.x();
-    let newY = node.y();
-
-    if (newX < -padding) newX = -padding;
-    if (newX + imageWidth > canvasWidth + padding) newX = canvasWidth - imageWidth + padding;
-    if (newY < -padding) newY = -padding;
-    if (newY + imageHeight > canvasHeight + padding) newY = canvasHeight - imageHeight + padding;
-
-    return { x: newX, y: newY };
-  };
-
-   // Xử lý phím Delete để xóa ảnh
-   useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e) => {
-      if (isSelected && e.key === 'Delete' && onDelete) {
+      if (isSelected && e.key === "Delete" && onDelete) {
         onDelete(obj.id);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isSelected, obj.id, onDelete]);
 
-  // Xử lý kéo hình ảnh
   const handleDragEnd = (e) => {
     const node = e.target;
-    const { x, y } = handleBoundaries(node);
-    if (x !== obj.x || y !== obj.y) {
+    const x = node.x() || 0;
+    const y = node.y() || 0;
+    if (x !== (obj.x || 0) || y !== (obj.y || 0)) {
       onUpdate(obj.id, { x, y });
     }
   };
 
-  // Xử lý thay đổi kích thước hoặc xoay
   const handleTransformEnd = (e) => {
     const node = e.target;
-    const { x, y } = handleBoundaries(node);
+    const x = node.x() || 0;
+    const y = node.y() || 0;
     onUpdate(obj.id, {
       x,
       y,
-      rotation: node.rotation(),
-      scaleX: node.scaleX(),
-      scaleY: node.scaleY(),
+      rotation: node.rotation() || 0,
+      scaleX: node.scaleX() || 1,
+      scaleY: node.scaleY() || 1,
     });
   };
+
+  // Đảm bảo các giá trị không phải NaN hoặc undefined
+  const safeX = obj.x || 0;
+  const safeY = obj.y || 0;
+  const safeScaleX = obj.scaleX || 1;
+  const safeScaleY = obj.scaleY || 1;
+  const safeRotation = obj.rotation || 0;
+  const safeWidth = obj.width || 100;
+  const safeHeight = obj.height || 100;
 
   return (
     <>
       <Image
         ref={imageRef}
-        key={obj.id}
         image={obj.image}
-        x={obj.x}
-        y={obj.y}
-        scaleX={(obj.scaleX || 1) * (obj.flipX ? -1 : 1)} // Lật ngang
-        scaleY={(obj.scaleY || 1) * (obj.flipY ? -1 : 1)} // Lật dọc
-        rotation={obj.rotation || 0}
+        x={safeX}
+        y={safeY}
+        scaleX={safeScaleX * (obj.flipX ? -1 : 1)}
+        scaleY={safeScaleY * (obj.flipY ? -1 : 1)}
+        offsetX={safeWidth / 2} // Đặt điểm neo ở trung tâm theo trục X
+        offsetY={safeHeight / 2} // Đặt điểm neo ở trung tâm theo trục Y
+        width={safeWidth}
+        height={safeHeight}
+        rotation={safeRotation}
         draggable={obj.draggable}
         onClick={() => onSelect(obj.id)}
         onDragEnd={handleDragEnd}
         onTransformEnd={handleTransformEnd}
         onTransform={(e) => {
           const node = e.target;
-          node.scaleX(Math.max(0.1, Math.min(node.scaleX(), 5)));
-          node.scaleY(Math.max(0.1, Math.min(node.scaleY(), 5)));
+          const currentScaleX = node.scaleX() || 1;
+          const currentScaleY = node.scaleY() || 1;
+          node.scaleX(Math.max(0.1, Math.min(currentScaleX, 5)));
+          node.scaleY(Math.max(0.1, Math.min(currentScaleY, 5)));
         }}
       />
       {isSelected && (
@@ -100,9 +101,21 @@ const ImageObject = ({ obj, onSelect, onUpdate, isSelected, onDelete, canvasWidt
           anchorSize={5}
           anchorStroke="skyblue"
           anchorStrokeWidth={1.5}
-          enabledAnchors={['middle-left', 'middle-right', 'top-left', 'top-right', 'bottom-left', 'bottom-right']}
+          enabledAnchors={[
+            "middle-left",
+            "middle-right",
+            "top-left",
+            "top-right",
+            "bottom-left",
+            "bottom-right",
+          ]}
           boundBoxFunc={(oldBox, newBox) => {
-            if (newBox.width < 20 || newBox.height < 20 || newBox.width > 500 || newBox.height > 500) {
+            if (
+              newBox.width < 20 ||
+              newBox.height < 20 ||
+              newBox.width > 500 ||
+              newBox.height > 500
+            ) {
               return oldBox;
             }
             return newBox;

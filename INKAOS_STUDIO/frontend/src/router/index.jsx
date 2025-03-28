@@ -14,12 +14,12 @@ import MyOrder from "../pages/MyOrder";
 import Address from "../pages/AddressList";
 import ProductDisplay from "../pages/ProductDisplay";
 import Checkout from "../pages/Checkout";
-import AdminProductList from "../pages/AdminProductList";
-import AdminUploadProduct from "../pages/AdminUploadProduct";
+
 import AdminUploadDesign from "../pages/AdminUploadDesign";
 import AdminDesignList from "../pages/AdminDesignList";
 import AdminSubCategory from "../pages/AdminSubCategory";
 import AdminCategory from "../pages/AdminCategory";
+import AdminProduct from "../pages/AdminProduct";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -80,12 +80,9 @@ const router = createBrowserRouter([
           },
           {
             path: "product",
-            element: <AdminProductList />, 
+            element: <AdminProduct />, 
           },
-          {
-            path: "upload-product",
-            element: <AdminUploadProduct />, 
-          },
+          
           
           {
             path: "design",

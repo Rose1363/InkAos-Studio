@@ -1,12 +1,22 @@
 import React from "react";
 
-const Loading = () => {
+// Định nghĩa các kích thước spinner
+const sizeClasses = {
+  small: "w-4 h-4", // 16px
+  medium: "w-7 h-7", // 28px (mặc định)
+  large: "w-10 h-10", // 40px
+};
+
+const Loading = ({ size = "medium" }) => {
+  // Lấy class kích thước dựa trên prop size, mặc định là medium
+  const sizeClass = sizeClasses[size] || sizeClasses.medium;
+
   return (
     <div className="flex justify-center items-center p-4">
       <div role="status">
         <svg
           aria-hidden="true"
-          class="w- h-7 text-gray-200 animate-spin dark:text-gray-300 fill-primary-darker"
+          className={`text-gray-200 animate-spin dark:text-gray-300 fill-primary-darker ${sizeClass}`}
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +30,7 @@ const Loading = () => {
             fill="currentFill"
           />
         </svg>
-        <span class="sr-only">Loading...</span>
+        <span className="sr-only">Loading...</span>
       </div>
     </div>
   );

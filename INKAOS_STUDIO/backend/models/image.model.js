@@ -6,7 +6,7 @@ const imageScheme = new mongoose.Schema({
         default : ""
     },
     
-    
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 }, {
     timestamps : true
 })

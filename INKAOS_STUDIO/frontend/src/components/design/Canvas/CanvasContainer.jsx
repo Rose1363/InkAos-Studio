@@ -1,8 +1,8 @@
-import React from 'react';
-import CanvasStage from './CanvasStage';
-import tshirtPhoto from '../../../assets/photo.png';
-import hoodie from '../../../assets/hoodi.png';
-import tankTop from '../../../assets/tanktop.jpg';
+import React from "react";
+import CanvasStage from "./CanvasStage";
+import tshirtPhoto from "../../../assets/photo.png";
+import hoodie from "../../../assets/hoodi.png";
+import tankTop from "../../../assets/tanktop.jpg";
 
 const CanvasContainer = ({
   objects,
@@ -11,7 +11,7 @@ const CanvasContainer = ({
   activePanel,
   selectedId,
   onDelete,
-  typeShirt, 
+  typeShirt,
 }) => {
   const baseContainerWidth = 900;
   const containerHeight = 900;
@@ -19,8 +19,9 @@ const CanvasContainer = ({
   const isLeftPanelOpen = !!activePanel;
   const isRightPanelOpen = !!selectedId;
   const panelWidth = 90;
-  const containerWidth = baseContainerWidth - 
-    (isLeftPanelOpen ? panelWidth : 0) - 
+  const containerWidth =
+    baseContainerWidth -
+    (isLeftPanelOpen ? panelWidth : 0) -
     (isRightPanelOpen ? panelWidth : 0);
 
   const canvasWidth = containerWidth * 0.5375;
@@ -30,40 +31,26 @@ const CanvasContainer = ({
 
   const getBackgroundImage = () => {
     switch (typeShirt) {
-      case 'hoodie':
+      case "hoodie":
         return `url(${hoodie})`;
-      case 'tanktop':
+      case "tanktop":
         return `url(${tankTop})`;
-      case 'tshirt':
+      case "tshirt":
       default:
         return `url(${tshirtPhoto})`;
     }
   };
 
   return (
-    <div className='bg-slate-100 flex justify-center items-center h-full w-full'>
-      <div
-        className='relative bg-amber-700 bg-cover bg-center h-[900px]'
-        style={{
-          backgroundImage: getBackgroundImage(),
-          width: `${containerWidth}px`,
-        }}
-      >
-        <div
-          className='absolute'
-          style={{
-            top: `${canvasY}px`,
-            left: `${canvasX}px`,
-          }}
-        >
-          <CanvasStage
-            objects={objects}
-            setSelectedId={setSelectedId}
-            updateObject={updateObject}
-            selectedId={selectedId}
-            onDelete={onDelete}
-          />
-        </div>
+    <div className="">
+      <div>
+      <CanvasStage
+        objects={objects}
+        setSelectedId={setSelectedId}
+        updateObject={updateObject}
+        selectedId={selectedId}
+        onDelete={onDelete}
+      />
       </div>
     </div>
   );

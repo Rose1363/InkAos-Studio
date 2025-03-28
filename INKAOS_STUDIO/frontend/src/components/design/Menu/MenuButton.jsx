@@ -12,7 +12,7 @@ const MenuButton = ({ icon, label, title, onClick, hoverClass }) => {
         <div className={`group-hover:bg-gray-700 ${hoverClass} p-1.5 rounded-xl`}>
           {icon}
         </div>
-        <span className="text-xs">{label}</span>
+        <span className="text-xs text-white">{label}</span>
       </div>
     </button>
   );

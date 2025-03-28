@@ -2,15 +2,20 @@ import React from "react";
 import TextOptions from "./Text/TextOptionControls";
 import ImageOptions from "./Image/ImageOptionControls";
 import Devider from "../../UI/Devider"
+import ShapeOptionControls from "./Shape/ShapeOptionControls";
 const OptionsPanel = ({
   selectedObject,
   updateObject,
   bringToFront,
   sendToBack,
 }) => {
-  
+  const handleClick = (e) => {
+    e.stopPropagation(); // Ngăn sự kiện click lan truyền lên window
+  };
   return (
-    <div className="w-30">
+    <div 
+    onClick={handleClick}
+    className="w-30">
       <h3>Tuy chon</h3>
       <Devider/>
       {selectedObject.type === "text" && 
@@ -26,6 +31,13 @@ const OptionsPanel = ({
       bringToFront={bringToFront}
       sendToBack={sendToBack}
       />}
+      {
+        selectedObject.type === "shape" &&
+        <ShapeOptionControls selectedObject={selectedObject}
+      updateObject={updateObject} 
+      bringToFront={bringToFront}
+      sendToBack={sendToBack} />
+      }
     </div>
   );
 };

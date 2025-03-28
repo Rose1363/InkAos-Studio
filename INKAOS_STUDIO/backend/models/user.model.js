@@ -62,6 +62,12 @@ const userSchema = new mongoose.Schema({
         default : "User"
     },
 
+
+    
+    savedDesigns: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Design" 
+      }]
    
 }, {
     timestamps : true

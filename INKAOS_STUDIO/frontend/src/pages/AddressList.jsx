@@ -54,7 +54,7 @@ const Address = () => {
       </div>
       <div className="p-3 mb-3  rounded-lg">
         {loading ? (
-           <Loading/>
+           <Loading size="large"/>
         ) : addressList.length > 0 ? (
           addressList.map((address, index) => (
             <div

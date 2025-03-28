@@ -34,7 +34,7 @@ const AdminCategory = () => {
   useEffect(() => {
     fetchCategory();
   }, []);
-  console.log(categoryData);
+  // console.log(categoryData);
   return (
     <section>
       <div className="flex items-center justify-between mb-3 shadow-md p-3">
@@ -65,7 +65,7 @@ const AdminCategory = () => {
         ))}
       </div>
 
-      {loading && <Loading />}
+      {loading && <Loading size="large"/>}
       {openAddCategory && (
         <AddCategory
           fetchData={fetchCategory}

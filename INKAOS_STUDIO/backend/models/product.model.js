@@ -8,49 +8,56 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
     image: {
-      type: [],
-      default: []
+      type: [String],
+      default: [],
     },
-
-    subCategory: {
-      type: mongoose.Schema.ObjectId,
-      ref: "SubCategory", 
-    },
-    price: {
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" },
+    material: { type: String },
+    basePrice: {
       type: Number,
       required: [true, "Provide product price"],
       min: [0, "Price must be a positive number"],
     },
-    discount: {
-        type: Number,
-        defaullt: null
-    },
-    stock: {
-      type: Number,
-      required: [true, "Provide stock quantity"],
-      min: [0, "Stock must be a non-negative number"],
-      default: 0,
-    },
+
     description: {
       type: String,
       trim: true,
     },
-    
+    variants: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Variant",
+      },
+    ],
+
+    design: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Design",
+      default: null, // Cho phép null (áo trơn)
+    },
+    designPlacement: {
+      // Vị trí in thiết kế
+      x: { type: Number, default: 0.5 }, // Tọa độ X (0-1)
+      y: { type: Number, default: 0.3 }, // Tọa độ Y (0-1)
+      scale: { type: Number, default: 1.0 }, // Tỉ lệ
+    },
   },
   {
-    timestamps: true, // Tự động thêm createdAt và updatedAt
+    timestamps: true,
   }
 );
 
-// Middleware để kiểm tra category_id có tồn tại trước khi lưu Product
-// productSchema.pre("save", async function (next) {
-//   const product = this;
-//   const category = await mongoose.model("Category").findById(product.category_id);
-//   if (!category) {
-//     throw new Error("Category not found");
-//   }
-//   next();
-// });
+// Trong product.model.js
+productSchema.virtual('totalStock').get(function() {
+  return this.variants.reduce((total, variant) => {
+    return total + variant.sizes.reduce((sum, size) => sum + (size.stock || 0), 0);
+  }, 0);
+});
 
+// Đảm bảo virtuals được bao gồm khi chuyển sang JSON
+productSchema.set('toJSON', { virtuals: true });
+productSchema.set('toObject', { virtuals: true });
+// productSchema.index({ category: 1, subCategory: 1, design: 1 });
 const ProductModel = mongoose.model("Product", productSchema);
 export default ProductModel;
