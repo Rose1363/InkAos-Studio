@@ -5,6 +5,6 @@ import { AddCategoryController, getCategoryController } from "../controllers/cat
 const categoryRouter = Router()
 
 categoryRouter.post('/add',auth, AddCategoryController)
-categoryRouter.get('/get', auth, getCategoryController)
+categoryRouter.get('/get', getCategoryController)
 // addressRouter.put('/update', auth, updateAddressController)
 export default categoryRouter

@@ -20,6 +20,7 @@ import AdminDesignList from "../pages/AdminDesignList";
 import AdminSubCategory from "../pages/AdminSubCategory";
 import AdminCategory from "../pages/AdminCategory";
 import AdminProduct from "../pages/AdminProduct";
+import ProductList from "../pages/ProductList";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -102,6 +103,15 @@ const router = createBrowserRouter([
       {
         path: "product/:id",
         element: <ProductDisplay />,
+      },
+      {
+        path: ":category",
+        children:[
+          {
+            path: ":subCategory",
+            element: <ProductList/>
+          }
+        ]
       },
       {
         path: "checkout",

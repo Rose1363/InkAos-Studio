@@ -96,7 +96,7 @@ const AdminUploadDesign = () => {
     thumbnail: thumbnailUrl,
   };
 
-  console.log("Dữ liệu gửi đi:", JSON.stringify(finalDesignData, null, 2)); // Log dữ liệu
+  // console.log("Dữ liệu gửi đi:", JSON.stringify(finalDesignData, null, 2)); // Log dữ liệu
 
   try {
     const response = await Axios({
@@ -104,7 +104,7 @@ const AdminUploadDesign = () => {
       data: finalDesignData,
       timeout: 10000,
     });
-
+    // console.log("Dữ liệu tra ve:", response.data.data); 
     if (response.data.success) {
       toast.success("Thiết kế đã được lưu thành công!");
       setTempDesign(null);

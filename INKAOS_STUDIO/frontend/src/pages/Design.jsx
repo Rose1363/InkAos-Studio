@@ -325,18 +325,6 @@ const Design = () => {
       toast.success("Thiết kế đã được lưu tạm thời!");
     }
   };
-  // Tính toán kích thước canvas
-  const baseContainerWidth = 900;
-  const containerHeight = 900;
-  const isLeftPanelOpen = !!activePanel;
-  const isRightPanelOpen = !!selectedId;
-  const panelWidth = 90;
-  const containerWidth =
-    baseContainerWidth -
-    (isLeftPanelOpen ? panelWidth : 0) -
-    (isRightPanelOpen ? panelWidth : 0);
-  const canvasWidth = containerWidth * 0.5375; // 483.75
-  const canvasHeight = 500;
 
   return (
     <div className="flex h-screen bg-slate-900">
@@ -408,10 +396,6 @@ const Design = () => {
         <div className="flex justify-center mt-30">
           <div
             ref={canvasContainerRef}
-            // style={{
-            //   transform: `scale(${canvasWidth / 400})`,
-            //   transformOrigin: "top left",
-            // }}
           >
             <CanvasStage
               stageRef={stageRef}

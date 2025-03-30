@@ -49,7 +49,7 @@ const ShapeInput = ({ addShape, selectedColor }) => {
       type: "star",
       label: "Hình ngôi sao",
       icon: <MdOutlineStar size={40} />,
-      color: "text-yellow-600",
+      color: "text-yellow-500",
       fillColor: "#F59E0B",
     },
     {

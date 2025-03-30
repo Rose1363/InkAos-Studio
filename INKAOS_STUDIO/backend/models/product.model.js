@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema(
       default: [],
     },
     category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-    subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" },
+    // subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" },
     material: { type: String },
     basePrice: {
       type: Number,
@@ -48,16 +48,37 @@ const productSchema = new mongoose.Schema(
   }
 );
 
+
+
 // Trong product.model.js
-productSchema.virtual('totalStock').get(function() {
+productSchema.virtual("totalStock").get(function () {
+  if (!this.populated("variants")) {
+    return 0;
+  }
+
   return this.variants.reduce((total, variant) => {
-    return total + variant.sizes.reduce((sum, size) => sum + (size.stock || 0), 0);
+    if (!variant || !Array.isArray(variant.sizes)) return total;
+    return (
+      total +
+      variant.sizes.reduce((sum, size) => sum + (size.stock || 0), 0)
+    );
   }, 0);
 });
 
-// Đảm bảo virtuals được bao gồm khi chuyển sang JSON
-productSchema.set('toJSON', { virtuals: true });
-productSchema.set('toObject', { virtuals: true });
-// productSchema.index({ category: 1, subCategory: 1, design: 1 });
+// Index cho tìm kiếm
+productSchema.index(
+  { name: "text", description: "text" },
+  { weights: { name: 10, description: 5 } }
+);
+
+// Index cho hiệu suất truy vấn
+productSchema.index({ category: 1 });
+
+// Middleware tự động xóa variants khi xóa product
+productSchema.pre("remove", async function (next) {
+  await mongoose.model("Variant").deleteMany({ product: this._id });
+  next();
+});
+
 const ProductModel = mongoose.model("Product", productSchema);
 export default ProductModel;

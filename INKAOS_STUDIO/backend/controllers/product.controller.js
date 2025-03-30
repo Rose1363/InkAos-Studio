@@ -1,84 +1,4 @@
-// import ProductModel from "../models/product.model.js";
 
-// export const addProductController = async (request, response) => {
-//   try {
-//     const {
-//       name,
-//       image,
-//       category,
-//       price,
-//       subCategory,
-//     //   material,
-//       promotion,
-//       description,
-//       variants,
-//     } = request.body;
-
-//     if (
-//       !name ||
-//       !image[0] ||
-   
-//       !subCategory ||
-      
-//       !price ||
-      
-//     //   !material ||
-//       !promotion ||
-//       !description ||
-//       !variants
-//     ) {
-//       return response.status(400).json({
-//         message: "Enter required fields",
-//         error: true,
-//         success: false,
-//       });
-//     }
-
-//     const newProduct = new ProductModel({
-//       name,
-//       image,
-//       category,
-//       price,
-//       subCategory,
-//     //   material,
-//       promotion,
-//       description,
-//       variants,
-//     });
-
-//     const saveProduct = await newProduct.save();
-
-//     return response.json({
-//       data: saveProduct,
-//       success: true,
-//       error: false,
-//       message: "Product added successfully",
-//     });
-//   } catch (error) {
-//     return response.status(500).json({
-//       message: error.message || error,
-//       error: true,
-//       success: false,
-//     });
-//   }
-// };
-
-// export const getProductController = async (request, response) => {
-//   try {
-//     const data = await ProductModel.find();
-//     return response.json({
-//       data: data,
-//       success: true,
-//       error: false,
-//     });
-//   } catch (error) {
-//     return response.status(500).json({
-//       message: error.message || error,
-//       error: true,
-//       success: false,
-//     });
-//   }
-// };
 
 import mongoose from "mongoose";
 import ProductModel from "../models/product.model.js";
@@ -231,80 +151,62 @@ export const addProductController = async (request, response) => {
 
 export const getProductController = async (request, response) => {
   try {
-    const { id } = request.params;
-    const { subCategory, limit = 10, page = 1, sortBy = "createdAt", sortOrder = "desc", populate = "variants" } = request.query;
+    // Lấy các tham số từ request.body với giá trị mặc định
+    let { page = 1, limit = 6, search, category, subCategory } = request.body;
 
-    // Kiểm tra tính hợp lệ của ID nếu có
-    if (id && !mongoose.Types.ObjectId.isValid(id)) {
-      return response.status(400).json({
-        message: "ID không hợp lệ",
-        error: true,
-        success: false,
-      });
-    }
-    if (subCategory && !mongoose.Types.ObjectId.isValid(subCategory)) {
-      return response.status(400).json({
-        message: "SubCategory ID không hợp lệ",
-        error: true,
-        success: false,
-      });
-    }
+    // Chuyển đổi page và limit thành số nguyên
+    page = parseInt(page, 10);
+    limit = parseInt(limit, 10);
 
     // Xây dựng query
-    const query = {};
-    if (id) query._id = id;
-    if (subCategory) query.subCategory = subCategory;
+    let query = {};
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } }, // Tìm theo tên sản phẩm
+        { description: { $regex: search, $options: "i" } }, // Tìm theo mô tả (nếu cần)
+      ];
+    }
+    if (category) {
+      query.category = category; // Lọc theo category (ObjectId)
+    }
+    if (subCategory) {
+      query.subCategory = subCategory; // Lọc theo subCategory (ObjectId)
+    }
 
-    // Phân trang
+    // Tính skip cho phân trang
     const skip = (page - 1) * limit;
-    const limitNumber = parseInt(limit);
 
-    // Sắp xếp
-    const sortOptions = {};
-    sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
+    // Truy vấn dữ liệu với populate
+    const [data, totalCount] = await Promise.all([
+      ProductModel.find(query)
+        .populate("category", "name") // Populate tên category
+        .populate("subCategory", "name") // Populate tên subCategory
+        .populate({
+          path: "variants",
+          populate: { path: "sizes" }, // Populate sizes trong variants nếu có
+        })
+        .populate("design", "name image") // Populate thông tin design (nếu cần)
+        .sort({ createdAt: -1 }) // Sắp xếp theo ngày tạo mới nhất
+        .skip(skip)
+        .limit(limit)
+        .lean(), // Chuyển sang plain object để tối ưu
+      ProductModel.countDocuments(query), // Đếm tổng số tài liệu
+    ]);
 
-    // Xử lý populate động
-    const populateFields = populate.split(",");
-    const queryBuilder = ProductModel.find(query);
-
-    if (populateFields.includes("variants")) {
-      queryBuilder.populate({
-        path: "variants",
-        select: "color colorCode sizes",
-      });
-    }
-    if (populateFields.includes("category")) {
-      queryBuilder.populate("category", "name");
-    }
-    if (populateFields.includes("subCategory")) {
-      queryBuilder.populate("subCategory", "name");
-    }
-    if (populateFields.includes("design")) {
-      queryBuilder.populate("design", "name image");
-    }
-
-    // Thực thi truy vấn
-    const products = await queryBuilder
-      .sort(sortOptions)
-      .skip(skip)
-      .limit(limitNumber)
-      .exec();
-
-    const totalProducts = await ProductModel.countDocuments(query);
-
+    // Trả về phản hồi
     return response.json({
-      data: products,
-      success: true,
+      message: "Product Data",
       error: false,
-      pagination: {
-        total: totalProducts,
-        page: parseInt(page),
-        limit: limitNumber,
-        totalPages: Math.ceil(totalProducts / limitNumber),
-      },
+      success: true,
+      data: data.map(product => ({
+        ...product,
+        totalStock: product.totalStock || 0, // Đảm bảo totalStock luôn có giá trị
+      })),
+      totalCount,
+      totalNoPage: Math.ceil(totalCount / limit),
     });
   } catch (error) {
-    console.error("Lỗi khi lấy sản phẩm:", error);
+    console.error("Error in getProductController:", error);
     return response.status(500).json({
       message: error.message || "Lỗi server",
       error: true,
@@ -312,3 +214,73 @@ export const getProductController = async (request, response) => {
     });
   }
 };
+
+export const getProductByCategory = async(request, response)=>{
+  try {
+    const {id} = request.body
+
+    if(!id){
+      return response.status(400).json({
+        message: "khong co id category",
+        error: true,
+        success: false,
+      });
+    }
+    const product = await ProductModel.find({
+      category: { $in : id}
+    }).limit(10)
+
+    return response.json({
+      message: "Category product list",
+      error: false,
+      success: true,
+      data: product
+    })
+  } catch (error) {
+    return response.status(500).json({
+      message: error.message || "Lỗi server",
+      error: true,
+      success: false,
+    });
+  }
+}
+// controllers/productController.js
+// export const getProductByCategory = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     // Validate ObjectId
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "ID danh mục không hợp lệ",
+//       });
+//     }
+
+//     // Verify category exists
+//     const categoryExists = await CategoryModel.exists({ _id: id });
+//     if (!categoryExists) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Không tìm thấy danh mục",
+//       });
+//     }
+
+//     const products = await ProductModel.find({ category: id })
+//       .limit(10)
+//       .populate('category', 'name')
+//       .populate('subCategory', 'name');
+
+//     return res.json({
+//       success: true,
+//       data: products,
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Lỗi server",
+//     });
+//   }
+// }
