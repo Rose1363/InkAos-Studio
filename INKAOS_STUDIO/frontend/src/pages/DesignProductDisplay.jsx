@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Thêm useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
@@ -11,11 +11,15 @@ import PriceDisplay from "../components/UI/PriceDisplay";
 import ProductWiseCatgory from "../components/UI/ProductWiseCatgory";
 import Loading from "../components/UI/Loading";
 import Devider from "../components/UI/Devider";
-import { FaPalette, FaShoppingCart } from "react-icons/fa";
+import { FaPalette } from "react-icons/fa";
+import AxiosToastError from "../utils/AxiosToastError";
+import toast from "react-hot-toast";
+
+import AddToCartButton from "../components/UI/AddToCartButton";
 
 const DesignProductDisplay = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // Thêm navigate để điều hướng
+  const navigate = useNavigate();
   const designId = id?.split("-")?.slice(-1)[0] || null;
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -25,6 +29,7 @@ const DesignProductDisplay = () => {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [designData, setDesignData] = useState({
     name: "",
     thumbnail: "",
@@ -46,10 +51,9 @@ const DesignProductDisplay = () => {
           name: response.data.data.name || "Thiết kế không tên",
           thumbnail: response.data.data.thumbnail || "https://via.placeholder.com/400",
           basePrice: response.data.data.basePrice || 0,
-          elements: response.data.data.elements || [], // Thêm elements để gửi sang Design
-          _id: response.data.data._id, // Thêm _id để cập nhật
-          isPublic: response.data.data.isPublic !== undefined ? response.data.data.isPublic : true, // Thêm isPublic
-       
+          elements: response.data.data.elements || [],
+          _id: response.data.data._id,
+          isPublic: response.data.data.isPublic !== undefined ? response.data.data.isPublic : true,
         });
       }
     } catch (err) {
@@ -71,14 +75,15 @@ const DesignProductDisplay = () => {
       if (response.data.success) {
         setProducts(response.data.data || []);
       } else {
-        setError("Không tìm thấy sản phẩm trong danh mục này.");
+        toast("Không tìm thấy sản phẩm trong danh mục này.");
       }
-    } catch (err) {
-      setError("Không thể tải danh sách sản phẩm. Vui lòng thử lại.");
+    } catch (error) {
+      AxiosToastError(error);
     } finally {
       setLoading(false);
     }
   }, [category]);
+
 
   const handleProductSelect = useCallback((product) => {
     setSelectedProduct(product);
@@ -104,9 +109,8 @@ const DesignProductDisplay = () => {
     }
   }, [products, selectedProduct, handleProductSelect]);
 
-  // Xử lý nút Tùy chỉnh
   const handleCustomize = () => {
-    console.log("designToEdit", designData)
+    // console.log("designToEdit", designData);
     navigate("/design", { state: { designToEdit: designData } });
   };
 
@@ -187,21 +191,17 @@ const DesignProductDisplay = () => {
             />
           </div>
           <div className="flex gap-4">
+           
+            <AddToCartButton quantity={quantity} designData={designData} selectedProduct={selectedProduct} selectedVariant={selectedVariant} selectedSize={selectedSize}/>
             <button
-              disabled={!selectedProduct || selectedProduct.variants.every(v => v.sizes.every(s => s.stock === 0))}
+              onClick={handleCustomize}
+              disabled={
+                !selectedProduct ||
+                selectedProduct.variants.every((v) => v.sizes.every((s) => s.stock === 0))
+              }
               className={`flex-1 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                !selectedProduct || selectedProduct.variants.every(v => v.sizes.every(s => s.stock === 0))
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-red-600 hover:bg-red-700 text-white"
-              }`}
-            >
-              <FaShoppingCart /> Thêm vào giỏ
-            </button>
-            <button
-              onClick={handleCustomize} // Thêm sự kiện onClick
-              disabled={!selectedProduct || selectedProduct.variants.every(v => v.sizes.every(s => s.stock === 0))}
-              className={`flex-1 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
-                !selectedProduct || selectedProduct.variants.every(v => v.sizes.every(s => s.stock === 0))
+                !selectedProduct ||
+                selectedProduct.variants.every((v) => v.sizes.every((s) => s.stock === 0))
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}

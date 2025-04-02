@@ -8,8 +8,10 @@ import { setUserDetails } from "./store/userSlice";
 import { useDispatch } from "react-redux";
 import { setAllCategory, setLoadingCategory } from "./store/productSlice";
 import Axios from "./utils/Axios";
-import {setStyleDesign} from "./store/designSlice"
+import { setStyleDesign } from "./store/designSlice";
 import SummaryApi from "./common/SummaryApi";
+import { handleAddItemCart } from "./store/cartSlice";
+import GlobalProvider from "./provider/GlobalProvider";
 function App() {
   const dispatch = useDispatch();
   const fetchUser = async () => {
@@ -19,7 +21,7 @@ function App() {
 
   const fetchCategory = async () => {
     try {
-      dispatch(setLoadingCategory(true))
+      dispatch(setLoadingCategory(true));
       const response = await Axios({
         ...SummaryApi.getCategory,
       });
@@ -29,7 +31,7 @@ function App() {
       }
     } catch (error) {
     } finally {
-      dispatch(setLoadingCategory(false))
+      dispatch(setLoadingCategory(false));
     }
   };
 
@@ -47,28 +49,46 @@ function App() {
     }
   };
 
+  const fetchCartItem = async () => {
+    
+    try {
+      const response = await Axios({
+        ...SummaryApi.getCartItem,
+      });
+      if (response.data.success) {
+        dispatch(handleAddItemCart(response.data.data));
+        console.log(response.data.data);
+      } else {
+        toast.error(response.data.message || "Không thể tải giỏ hàng!");
+      }
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi tải giỏ hàng!");
+      console.log(error);
+    }
+  };
   useEffect(() => {
     fetchUser();
     fetchCategory();
-    fetchStyleDesign()
+    fetchStyleDesign();
+    // fetchCartItem();
   }, []);
 
   return (
-    <>
+    <GlobalProvider>
       <Header />
-      <main className="min-h-[80vh]">
+      <main className="min-h-[70vh]">
         <Outlet />
       </main>
       <Footer />
       <Toaster
-        toastOptions={{
-          duration: 5000, // Thời gian hiển thị (ms)
-          style: {
-            zIndex: 100, // Cao hơn modal
-          },
-        }}
+        // toastOptions={{
+        //   duration: 2000, // Thời gian hiển thị (ms)
+        //   style: {
+        //     zIndex: 100, // Cao hơn modal
+        //   },
+        // }}
       />
-    </>
+    </GlobalProvider>
   );
 }
 

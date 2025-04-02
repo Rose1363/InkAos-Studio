@@ -8,7 +8,7 @@ const DesignCard = ({ design }) => {
   return (
     <Link
       to={url}
-      className="block w-60 max-w-xs bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+      className="block lg:w-60 w-48 max-w-xs bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
     >
       <div className="relative overflow-hidden rounded-t-2xl p-3">
         <img

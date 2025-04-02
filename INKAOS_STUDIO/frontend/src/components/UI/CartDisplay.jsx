@@ -5,8 +5,12 @@ import { Link, useNavigate } from "react-router-dom";
 import testData from "../../data/TestData";
 import emptyCart from "../../assets/emptyCart.jpeg";
 import Devider from "../UI/Devider";
+import { useGlobalContext } from "../../provider/GlobalProvider";
+import { useSelector } from "react-redux";
 
 const CartDisplay = ({ close }) => {
+  const cartItem = useSelector(state=> state.cartItem.cart)
+   const {fetchCartItem} = useGlobalContext()
   const [quantities, setQuantities] = useState(() =>
     testData.map(() => 1)
   );
@@ -18,20 +22,20 @@ const CartDisplay = ({ close }) => {
         close()
       }
   }
-  // Thêm class overflow-hidden cho body khi giỏ hàng mở
+ 
   useEffect(() => {
-    document.body.style.overflow = "hidden"; // Vô hiệu hóa cuộn body
+    document.body.style.overflow = "hidden"; 
     return () => {
-      document.body.style.overflow = "auto"; // Khôi phục cuộn khi đóng
+      document.body.style.overflow = "auto"; 
     };
-  }, []); // Chạy khi component mount/unmount
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
     }, 2000);
   }, []);
-
+  console.log("cartItem",cartItem)
   const increaseQuantity = (index) => {
     const newQuantities = [...quantities];
     newQuantities[index] = newQuantities[index] + 1;
@@ -61,7 +65,7 @@ const CartDisplay = ({ close }) => {
             <div className="flex justify-center items-center h-full">
               <img src={emptyCart} alt="Giỏ hàng trống" className="w-100" />
             </div>
-          ) : testData.length === 0 ? (
+          ) : cartItem.length === 0 ? (
             <div className="flex justify-center items-center h-full flex-col">
               <img src={emptyCart} alt="Giỏ hàng trống" className="w-100" />
               <p>Giỏ hàng của bạn đang trống</p>
@@ -70,7 +74,7 @@ const CartDisplay = ({ close }) => {
             <>
               <div className="p-2 m-2">
                 <div className="bg-white rounded-xl grid gap-2 overflow-auto max-h-[calc(100%-200px)]">
-                  {testData.map((product, index) => (
+                  {cartItem.map((item, index) => (
                     <div key={index} className="flex items-center gap-2 p-2 shadow bg-slate-50 rounded-lg">
                       <div>
                         <input type="checkbox" className="w-6 h-6" />
@@ -78,14 +82,14 @@ const CartDisplay = ({ close }) => {
                       </div>
                       <div className=" w-30 h-30 p-1 rounded flex-shrink-0">
                         <img
-                          src={product.images}
-                          alt={product.name}
+                          src={item.images}
+                          alt={item.name}
                           className="w-full h-full object-scale-down"
                         />
                       </div>
                       <div className="flex-1 ml-2">
-                        <p className="text-xl ">{product.name}</p>
-                        <p className=" font-semibold text-sky-900">{product.price}</p>
+                        <p className="text-xl ">{item.name}</p>
+                        <p className=" font-semibold text-sky-900">{item.price}</p>
                       </div>
                       <div>
                         <div className="flex items-center bg-white rounded">

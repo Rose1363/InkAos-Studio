@@ -47,7 +47,11 @@ const userSchema = new mongoose.Schema({
         }
     ],
 
-
+    cart: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Cart",
+        default: null
+      },
     forgot_password_otp : {
         type : String,
         default : null

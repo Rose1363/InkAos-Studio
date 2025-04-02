@@ -14,6 +14,7 @@ import uploadImageRouter from './router/uploadImage.route.js';
 import subCategoryRouter from './router/styleDesign.router.js';
 import productRouter from './router/product.route.js';
 import designRouter from './router/design.route.js';
+import cartRouter from './router/cart.route.js';
 dotenv.config();
 
 const app = express();
@@ -52,6 +53,7 @@ app.use('/api/address', addressRouter)
 app.use('/api/text', textDesignRouter)
 app.use('/api/product', productRouter)
 app.use('/api/design', designRouter)
+app.use('/api/cart', cartRouter)
 // Start the server
 connectDB().then(()=>{
     app.listen(PORT, () => {

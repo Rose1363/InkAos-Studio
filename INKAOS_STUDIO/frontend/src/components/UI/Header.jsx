@@ -10,16 +10,10 @@ import { useSelector } from "react-redux";
 import CartDisplay from "./CartDisplay";
 const Header = () => {
   const navigate = useNavigate();
-  const redirectToLoginPage = () => {
-    navigate("/login");
-  };
-  const redirectToDesignPage = () => {
-    navigate("/design");
-  };
   const user = useSelector((state) => state?.user);
   const [openUserMenu, setOpenUserMenu] = useState(false);
   const [opendCartSection, setOpenCartSection] = useState(false);
-  
+  const cartItem = useSelector(state => state.cartItem.cart)
 
   return (
     <header className="h-20 shadow-md bg-gray-200 sticky top-0 z-50">
@@ -47,7 +41,7 @@ const Header = () => {
             <button
             aria-label="cart"
               onClick={() => setOpenCartSection(true)}
-              className="text-primary-darker relative hidden lg:block"
+              className="text-primary-darker relative lg:block"
             >
               <div>
                 <TiShoppingCart size={35} />
@@ -56,10 +50,13 @@ const Header = () => {
                 className="absolute top-0 right-0 rounded-full 
                                   transform translate-x-1/2 -translate-y-1/2
                                  bg-red-800 text-white 
-                                 text-xs px-1 py-0.5 flex items-center 
+                                 text-xs px-1 flex items-center 
                                  justify-center"
               >
-                99
+               {
+                cartItem[0]?(
+                `${cartItem.length}`):("0")
+               }
               </div>
             </button>
           </div>
@@ -83,7 +80,7 @@ const Header = () => {
               </div>
             ) : (
               <div
-                onClick={redirectToLoginPage}
+                onClick={() => navigate("/login")}
                 className="flex justify-center items-center
                      bg-primary-darker h-12 w-12 
                      rounded-full border-2"

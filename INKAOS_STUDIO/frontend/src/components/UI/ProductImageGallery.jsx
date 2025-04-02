@@ -16,7 +16,7 @@ const ProductImageGallery = ({ selectedProduct,selectedVariant, designData, imag
 
   return (
     <div className="p-6 bg-gray-50">
-      <div className="relative w-full h-[49vh] lg:h-[70vh] rounded-2xl overflow-hidden shadow-lg transition-all duration-300">
+      <div className="relative w-full h-[49vh] lg:h-[66vh] rounded-2xl overflow-hidden shadow-lg transition-all duration-300">
         <div className="relative w-full h-full flex items-center bg-[#f5f5f5] justify-center">
           <div className="relative h-full rounded-lg overflow-hidden" style={{ backgroundColor }}>
             <img

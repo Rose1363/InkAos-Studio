@@ -123,8 +123,19 @@ const SummaryApi = {
     url: "/api/design/update",
     method: "put",
   },
+  addToCart: {
+    url: "/api/cart/add",
+    method: "post",
+  },
+  getCartItem: {
+    url: "/api/cart/get",
+    method: "post",
+  },
+  deleteCartItem: {
+    url: "/api/cart/ delete-cart-item",
+    method: "delete",
+  },
  
-  
   
 };
 
