@@ -63,7 +63,7 @@ const CategoryWiseProductDisplay = ({ id, name }) => {
       <div className="relative mx-4">
         <div
           ref={containerRef} // Gán ref vào danh sách sản phẩm
-          className="flex  overflow-x-hidden gap-5 scroll-smooth"
+          className="flex  overflow-hidden gap-5 scroll-smooth"
         >
           {/* Hiển thị loading */}
           {loading &&

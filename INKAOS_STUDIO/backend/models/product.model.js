@@ -12,7 +12,6 @@ const productSchema = new mongoose.Schema(
       default: [],
     },
     category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-    // subCategory: { type: mongoose.Schema.Types.ObjectId, ref: "SubCategory" },
     material: { type: String },
     basePrice: {
       type: Number,
@@ -50,20 +49,6 @@ const productSchema = new mongoose.Schema(
 
 
 
-// Trong product.model.js
-productSchema.virtual("totalStock").get(function () {
-  if (!this.populated("variants")) {
-    return 0;
-  }
-
-  return this.variants.reduce((total, variant) => {
-    if (!variant || !Array.isArray(variant.sizes)) return total;
-    return (
-      total +
-      variant.sizes.reduce((sum, size) => sum + (size.stock || 0), 0)
-    );
-  }, 0);
-});
 
 // Index cho tìm kiếm
 productSchema.index(
@@ -75,8 +60,9 @@ productSchema.index(
 productSchema.index({ category: 1 });
 
 // Middleware tự động xóa variants khi xóa product
-productSchema.pre("remove", async function (next) {
-  await mongoose.model("Variant").deleteMany({ product: this._id });
+productSchema.pre("deleteOne", { document: false, query: true }, async function (next) {
+  const productId = this.getQuery()._id; // Lấy _id từ truy vấn
+  await mongoose.model("Variant").deleteMany({ product: productId });
   next();
 });
 

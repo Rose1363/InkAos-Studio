@@ -18,7 +18,7 @@ const CardProduct = ({ product }) => {
         />
       </div>
       <div className="py-3 text-center">
-        <h2 className="text-lg font-semibold text-gray-800 truncate">{product.name}</h2>
+        <h2 className="text-lg font-semibold text-gray-800 ">{product.name}</h2>
       </div>
       <div className="flex justify-center items-center gap-2">
         <span className="text- font-bold text-orange-500">{product.basePrice}VND</span>

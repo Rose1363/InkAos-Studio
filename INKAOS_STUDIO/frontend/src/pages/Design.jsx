@@ -14,7 +14,8 @@ import IsAdmin from "../utils/IsAdmin";
 import { useNavigate, useLocation } from "react-router-dom";
 import Loading from "../components/UI/Loading";
 import ShapeInput from "../components/design/Menu/Inputs/ShapeInput";
-import { Stage } from "react-konva"; // Thêm Stage để ref
+import { validURLConvert } from "../utils/validURLConvert";
+
 const Design = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,62 +26,62 @@ const Design = () => {
   const [background, setBackground] = useState("tshirt");
   const [designName, setDesignName] = useState("Thiết kế mới");
   const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPublicOriginal, setIsPublicOriginal] = useState(false); // Lưu trạng thái isPublic ban đầu
   const stageRef = useRef(null);
   const canvasContainerRef = useRef(null);
-  // Load dữ liệu từ state khi chỉnh sửa
-  // Trong useEffect load design để chỉnh sửa
+  const designId =
+    location.state?.designToEdit?.designId ||
+    location.state?.designToEdit?._id ||
+    null; // Load dữ liệu từ state khi chỉnh sửa
   useEffect(() => {
     const designToEdit = location.state?.designToEdit;
+
     if (designToEdit) {
       setDesignName(designToEdit.name);
       setBackground(designToEdit.background || "tshirt");
+      setIsPublicOriginal(designToEdit.isPublic || false);
       setObjects(
         designToEdit.elements.map((el) => {
+          const id = `${el.type}-${Date.now()}-${Math.random()}`;
           if (el.type === "image") {
             const img = new window.Image();
-            img.crossOrigin = "Anonymous"; // Thêm dòng này
+            img.crossOrigin = "Anonymous";
             img.src = el.imageUrl;
-            return {
-              ...el,
-              id: `image-${Date.now()}-${Math.random()}`,
-              image: img,
-            };
+            return { ...el, id, image: img };
           }
-          return { ...el, id: `text-${Date.now()}-${Math.random()}` };
+          return { ...el, id };
         })
       );
     }
   }, [location.state]);
 
+  // Xử lý click ngoài canvas
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
         canvasContainerRef.current &&
         !canvasContainerRef.current.contains(e.target)
       ) {
-        setSelectedId(null); // Bỏ chọn khi click ra ngoài canvas
+        setSelectedId(null);
       }
     };
-
     window.addEventListener("click", handleClickOutside);
     return () => window.removeEventListener("click", handleClickOutside);
   }, []);
+
   const togglePanel = (panel) => {
     setActivePanel(activePanel === panel ? null : panel);
   };
 
   const deleteObject = (id) => {
     setObjects(objects.filter((obj) => obj.id !== id));
-    if (selectedId === id) {
-      setSelectedId(null);
-    }
+    if (selectedId === id) setSelectedId(null);
   };
 
   const updateObject = (id, updates) => {
     setObjects(
-      objects.map((obj) => {
-        return obj.id === id ? { ...obj, ...updates } : obj;
-      })
+      objects.map((obj) => (obj.id === id ? { ...obj, ...updates } : obj))
     );
   };
 
@@ -119,7 +120,7 @@ const Design = () => {
           if (response.data && response.data.success) {
             const imageUrl = response.data.data.url;
             const img = new window.Image();
-            img.crossOrigin = "anonymous"; // Thêm dòng này
+            img.crossOrigin = "Anonymous";
             img.src = imageUrl;
             img.onload = () => {
               const newImage = {
@@ -133,10 +134,10 @@ const Design = () => {
                 scaleY: 0.5,
                 draggable: true,
                 width: img.width,
-                rotation: 0,
-                flipX: false, // Khởi tạo flipX
-                flipY: false, // Khởi tạo flipY
                 height: img.height,
+                rotation: 0,
+                flipX: false,
+                flipY: false,
               };
               setObjects((prevObjects) => [...prevObjects, newImage]);
               setSelectedId(newImage.id);
@@ -153,32 +154,10 @@ const Design = () => {
       }
     }
   };
+
   const addShape = (shape) => {
     setObjects([...objects, shape]);
     setSelectedId(shape.id);
-  };
-  const bringToFront = () => {
-    if (selectedId) {
-      const selectedIndex = objects.findIndex((obj) => obj.id === selectedId);
-      if (selectedIndex !== -1 && selectedIndex < objects.length - 1) {
-        const newObjects = [...objects];
-        const [selected] = newObjects.splice(selectedIndex, 1);
-        newObjects.push(selected);
-        setObjects(newObjects);
-      }
-    }
-  };
-
-  const sendToBack = () => {
-    if (selectedId) {
-      const selectedIndex = objects.findIndex((obj) => obj.id === selectedId);
-      if (selectedIndex !== -1 && selectedIndex > 0) {
-        const newObjects = [...objects];
-        const [selected] = newObjects.splice(selectedIndex, 1);
-        newObjects.unshift(selected);
-        setObjects(newObjects);
-      }
-    }
   };
 
   const handleBackgroundChange = (bg) => {
@@ -201,12 +180,13 @@ const Design = () => {
     }
     return null;
   };
-  const saveDesign = () => {
-    const thumbnail = generateThumbnail(); // Tạo thumbnail
-    const designData = {
+
+  const prepareDesignData = () => {
+    const thumbnail = generateThumbnail();
+    return {
+      designId: designId,
       name: designName || "Thiết kế không tên",
       userId: user?._id,
-      style: "casual",
       elements: objects.map((obj) => {
         const ensureNumber = (value, defaultValue = 0) =>
           isNaN(value) || value === undefined ? defaultValue : Number(value);
@@ -229,9 +209,8 @@ const Design = () => {
             draggable: obj.draggable !== undefined ? obj.draggable : true,
           };
         } else if (obj.type === "image") {
-          if (!obj.imageUrl) {
+          if (!obj.imageUrl)
             throw new Error("Image object is missing imageUrl");
-          }
           return {
             type: "image",
             imageUrl: obj.imageUrl,
@@ -296,7 +275,9 @@ const Design = () => {
                 ...baseShapeProps,
                 width: ensureNumber(obj.width, 100),
                 height: ensureNumber(obj.height, 100),
-                data: obj.data || "M50 40 C20 0 0 50 20 75 C40 100 50 120 50 120 C50 120 60 100 80 75 C100 50 80 0 50 40 Z",
+                data:
+                  obj.data ||
+                  "M50 40 C20 0 0 50 20 75 C40 100 50 120 50 120 C50 120 60 100 80 75 C100 50 80 0 50 40 Z",
               };
             default:
               return {
@@ -310,19 +291,89 @@ const Design = () => {
       }),
       canvasWidth: 400,
       canvasHeight: 500,
-      background: background,
       basePrice: 0,
-      isPublic: false,
+      isPublic: IsAdmin(user?.role) ? true : false, // Admin tạo isPublic: true, User tạo isPublic: false
       tags: [],
       thumbnail,
     };
+  };
 
+  const saveDesignToDatabase = async () => {
+    const designData = prepareDesignData();
+    setIsSaving(true);
+    try {
+      let response;
+      const isAdmin = IsAdmin(user?.role);
+
+      if (isAdmin) {
+        // Admin: Tạo mới hoặc cập nhật
+        if (designData.designId) {
+          response = await Axios({
+            ...SummaryApi.updateDesign,
+            data: designData,
+          });
+        } else {
+          response = await Axios({
+            ...SummaryApi.addDesign,
+            data: designData,
+          });
+        }
+      } else {
+        // User: Kiểm tra design ban đầu
+        if (designData.designId) {
+          if (isPublicOriginal) {
+            // Design gốc là public -> Tạo mới cho user
+
+            designData.isPublic = false; // Đảm bảo design mới không public
+            response = await Axios({
+              ...SummaryApi.addDesign,
+              data: designData,
+            });
+          } else {
+            // Design gốc không public -> Cập nhật
+            response = await Axios({
+              ...SummaryApi.updateDesign,
+              data: designData,
+            });
+          }
+        } else {
+          // Tạo mới design cho user
+          response = await Axios({
+            ...SummaryApi.addDesign,
+            data: designData,
+          });
+        }
+      }
+
+      if (response.data.success) {
+        toast.success(
+          designData.designId
+            ? "Cập nhật thiết kế thành công!"
+            : "Lưu thiết kế thành công!"
+        );
+        const designId = response.data.data._id || designData.designId;
+        navigate(`/design/${validURLConvert(designData.name)}-${designId}`);
+        console.log("designdataafteredit", designData);
+      } else {
+        throw new Error(response.data.message || "Lưu thất bại");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lưu thiết kế:", error);
+      toast.error(error.message || "Không thể lưu thiết kế");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const finishDesign = () => {
+    const designData = prepareDesignData();
     if (IsAdmin(user?.role)) {
       navigate("/dashboard/upload-design", {
         state: { tempDesign: designData },
       });
     } else {
-      toast.success("Thiết kế đã được lưu tạm thời!");
+      toast.success("Thiết kế đã hoàn tất và lưu tạm thời!");
+      navigate("/"); // Chuyển về trang chủ hoặc trang khác tùy ý
     }
   };
 
@@ -357,46 +408,85 @@ const Design = () => {
             className="p-2 rounded w-64 text-gray-200 focus:outline-none focus:text-white transition-all duration-200"
             placeholder="Tên thiết kế"
           />
-          <button
-            type="button"
-            onClick={saveDesign}
-            className={`
-              relative
-              bg-indigo-600
-              text-white
-              px-5 py-2.5
-              rounded-lg
-              font-semibold
-              transition-all
-              duration-200
-              ease-in-out
-              hover:bg-indigo-700
-              hover:shadow-lg
-              hover:scale-105
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              ${isUploading ? "pl-12" : ""}
-            `}
-            disabled={objects.length === 0 || isUploading}
-          >
-            <div className="flex items-center justify-center">
-              {isUploading ? (
-                <>
-                  <span className="absolute left-2">
-                    <Loading size="small" />
-                  </span>
-                  <span className="text-white">Đang xử lý...</span>
-                </>
-              ) : (
-                "Hoàn thành"
-              )}
-            </div>
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={saveDesignToDatabase}
+              className={`
+                relative
+                bg-indigo-600
+                text-white
+                px-5 py-2.5
+                rounded-lg
+                font-semibold
+                transition-all
+                duration-200
+                ease-in-out
+                hover:bg-indigo-700
+                hover:shadow-lg
+                hover:scale-105
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+                ${isUploading || isSaving ? "pl-12" : ""}
+              `}
+              disabled={objects.length === 0 || isUploading || isSaving}
+            >
+              <div className="flex items-center justify-center">
+                {isSaving ? (
+                  <>
+                    <span className="absolute left-2">
+                      <Loading size="small" />
+                    </span>
+                    <span className="text-white">Đang lưu...</span>
+                  </>
+                ) : (
+                  "Preview"
+                )}
+              </div>
+            </button>
+            {IsAdmin(user?.role) && (
+              <button
+                type="button"
+                onClick={finishDesign}
+                className={`
+                relative
+                bg-green-600
+                text-white
+                px-5 py-2.5
+                rounded-lg
+                font-semibold
+                transition-all
+                duration-200
+                ease-in-out
+                hover:bg-green-700
+                hover:shadow-lg
+                hover:scale-105
+                disabled:opacity-50
+                disabled:cursor-not-allowed
+                ${isUploading || isSaving ? "pl-12" : ""}
+              `}
+                disabled={objects.length === 0 || isUploading || isSaving}
+              >
+                <div className="flex items-center justify-center">
+                  {isUploading ? (
+                    <>
+                      <span className="absolute left-2">
+                        <Loading size="small" />
+                      </span>
+                      <span className="text-white">Đang xử lý...</span>
+                    </>
+                  ) : designId ? (
+                    "Cập nhật thiết kế"
+                  ) : (
+                    "Lưu thiết kế"
+                  )}
+                </div>
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex justify-center mt-30">
-          <div
-            ref={canvasContainerRef}
-          >
+          <div ref={canvasContainerRef}>
             <CanvasStage
               stageRef={stageRef}
               objects={objects}
@@ -404,7 +494,7 @@ const Design = () => {
               updateObject={updateObject}
               selectedId={selectedId}
               onDelete={deleteObject}
-              background={background} 
+              background={background}
             />
           </div>
         </div>
@@ -417,8 +507,9 @@ const Design = () => {
                 objects.find((obj) => obj.id === selectedId) || {}
               }
               updateObject={(updates) => updateObject(selectedId, updates)}
-              bringToFront={bringToFront}
-              sendToBack={sendToBack}
+              objects={objects}
+              setObjects={setObjects}
+              selectedId={selectedId}
             />
           </div>
         )}

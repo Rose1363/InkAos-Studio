@@ -14,11 +14,13 @@ const Dashboard = () => {
       <div className="container mx-auto p-3 flex">
         <div className="flex-[1] py-4 sticky top-24 max-h-[calc(100vh-400px)] border-gray-100 border-r-2 pl-5 text-xl">
           <div className="text-neutral-700 p-3">
-          <div className="text-md font-semibold max-w-[220px] text-left grid">
-            {user.name}
-            <span className="text-red-700 text-sm">{user.role === "Admin" ? "Admin" : ""}</span>
-          </div>
-          <Devider />
+            <div className="text-md font-semibold max-w-[220px] text-left grid">
+              {user.name}
+              <span className="text-red-700 text-sm">
+                {user.role === "Admin" ? "Admin" : ""}
+              </span>
+            </div>
+            <Devider />
             {/* Tài khoản người dùng */}
             <div className="text-lg font-semibold mb-2">Tài khoản</div>
             <div className="grid text-sm gap-2 mb-4">
@@ -34,6 +36,12 @@ const Dashboard = () => {
               >
                 Địa chỉ
               </Link>
+              <Link
+                to={"/dashboard/user-design"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Thiết kế của tôi
+              </Link>
             </div>
 
             {/* Quản lý của admin */}
@@ -48,36 +56,32 @@ const Dashboard = () => {
                   >
                     Danh mục sản phẩm
                   </Link>
-                  <Link
-                    to={"/dashboard/sub-category"}
-                    className="text-left px-2 hover:font-bold"
-                  >
-                    Danh mục sản phẩm con
-                  </Link>
+
                   <Link
                     to={"/dashboard/product"}
                     className="text-left px-2 hover:font-bold"
                   >
                     Sản phẩm
                   </Link>
-                 
+
                   <Link
-                    to={"/dashboard/design-theme"}
+                    to={"/dashboard/style-design"}
                     className="text-left px-2 hover:font-bold"
                   >
                     Phong cách thiết kế
+                  </Link>
+
+                  <Link
+                    to={"/dashboard/upload-design"}
+                    className="text-left px-2 hover:font-bold"
+                  >
+                    Thêm thiết kế
                   </Link>
                   <Link
                     to={"/dashboard/design"}
                     className="text-left px-2 hover:font-bold"
                   >
                     Thiết kế
-                  </Link>
-                  <Link
-                    to={"/dashboard/upload-design"}
-                    className="text-left px-2 hover:font-bold"
-                  >
-                    Thêm thiết kế
                   </Link>
                 </div>
               </>

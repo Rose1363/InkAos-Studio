@@ -4,13 +4,12 @@ import AspectRatioSettings from './AspectRatioSettings';
 import ScaleSettings from './ScaleSettings';
 import RotateSettings from './RotateSettings';
 import FlipSettings from './FlipSettings';
-const ImageOptions = ({ selectedObject, updateObject, bringToFront, sendToBack }) => {
+const ImageOptions = ({ selectedObject, updateObject,objects, setObjects, selectedId}) => {
   if (!selectedObject || selectedObject.type !== 'image') return null;
 
   return (
     <div className="p-3 flex flex-col gap-3">
-      <LayerControls bringToFront={bringToFront} sendToBack={sendToBack} />
-
+      <LayerControls objects={objects} setObjects={setObjects} selectedId={selectedId} />
       
       <AspectRatioSettings selectedObject={selectedObject} updateObject={updateObject}/>
 

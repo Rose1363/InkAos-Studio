@@ -6,32 +6,35 @@ import toast from "react-hot-toast";
 import { FaMagic } from "react-icons/fa";
 import Loading from "../components/UI/Loading";
 import uploadImage from "../utils/uploadImage";
+import { useSelector } from "react-redux";
 
 const AdminUploadDesign = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
-  const [tempDesign, setTempDesign] = useState(
-    location.state?.tempDesign || null
-  );
+
+  const allStyleDesign = useSelector((state) => state.design.allStyleDesign);
+
+  const [tempDesign, setTempDesign] = useState(location.state?.tempDesign || null);
   const [formData, setFormData] = useState({
     name: tempDesign?.name || "Thiết kế mới",
-    style: tempDesign?.style || "casual",
+    styleDesign: tempDesign?.styleDesign || [],
     basePrice: tempDesign?.basePrice || 10000,
     tags: tempDesign?.tags || [],
     isPublic: tempDesign?.isPublic || false,
+    designId: tempDesign?.designId || null, // Thêm designId vào formData
   });
   const [tagInput, setTagInput] = useState("");
 
-  // Cập nhật formData khi tempDesign thay đổi
   useEffect(() => {
     if (tempDesign) {
       setFormData({
         name: tempDesign.name || "Thiết kế mới",
-        style: tempDesign.style || "casual",
+        styleDesign: tempDesign.styleDesign || [],
         basePrice: tempDesign.basePrice || 10000,
         tags: tempDesign.tags || [],
         isPublic: tempDesign.isPublic || false,
+        designId: tempDesign.designId || null, // Cập nhật designId từ tempDesign
       });
     }
   }, [tempDesign]);
@@ -41,6 +44,24 @@ const AdminUploadDesign = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: name === "basePrice" ? parseFloat(value) || 0 : value,
+    }));
+  };
+
+  const handleStyleChange = (e) => {
+    const selectedStyleId = e.target.value;
+    if (selectedStyleId && !formData.styleDesign.includes(selectedStyleId)) {
+      setFormData((prev) => ({
+        ...prev,
+        styleDesign: [...prev.styleDesign, selectedStyleId],
+      }));
+    }
+    e.target.value = "";
+  };
+
+  const handleRemoveStyle = (styleIdToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      styleDesign: prev.styleDesign.filter((id) => id !== styleIdToRemove),
     }));
   };
 
@@ -61,79 +82,93 @@ const AdminUploadDesign = () => {
     }));
   };
 
- const saveFinalDesign = async () => {
-  if (!tempDesign) {
-    toast.error("Không có thiết kế để lưu!");
-    return;
-  }
-
-  let thumbnailUrl = tempDesign.thumbnail;
-  if (thumbnailUrl && thumbnailUrl.startsWith("data:image")) {
-    try {
-      const blob = await (await fetch(thumbnailUrl)).blob();
-      const file = new File([blob], "thumbnail.png", { type: "image/png" });
-      const uploadResponse = await uploadImage(file); // Sử dụng hàm uploadImage
-      if (uploadResponse.data && uploadResponse.data.success) {
-        thumbnailUrl = uploadResponse.data.data.url;
-      } else {
-        throw new Error("Failed to upload thumbnail");
-      }
-    } catch (error) {
-      console.error("Lỗi khi upload thumbnail:", error);
-      toast.error("Không thể upload thumbnail!");
-      setLoading(false);
+  const saveFinalDesign = async () => {
+    if (!tempDesign) {
+      toast.error("Không có thiết kế để lưu!");
       return;
     }
-  }
-  setLoading(true);
-  const finalDesignData = {
-    ...tempDesign,
-    name: formData.name,
-    style: formData.style,
-    basePrice: formData.basePrice,
-    tags: formData.tags,
-    isPublic: formData.isPublic,
-    thumbnail: thumbnailUrl,
+
+    let thumbnailUrl = tempDesign.thumbnail;
+    if (thumbnailUrl && thumbnailUrl.startsWith("data:image")) {
+      try {
+        const blob = await (await fetch(thumbnailUrl)).blob();
+        const file = new File([blob], "thumbnail.png", { type: "image/png" });
+        const uploadResponse = await uploadImage(file);
+        if (uploadResponse.data && uploadResponse.data.success) {
+          thumbnailUrl = uploadResponse.data.data.url;
+        } else {
+          throw new Error("Failed to upload thumbnail");
+        }
+      } catch (error) {
+        console.error("Lỗi khi upload thumbnail:", error);
+        toast.error("Không thể upload thumbnail!");
+        setLoading(false);
+        return;
+      }
+    }
+
+    setLoading(true);
+    const finalDesignData = {
+      ...tempDesign,
+      name: formData.name,
+      styleDesign: formData.styleDesign,
+      basePrice: formData.basePrice,
+      tags: formData.tags,
+      isPublic: formData.isPublic,
+      thumbnail: thumbnailUrl,
+      designId: formData.designId, // Đảm bảo designId được bao gồm
+    };
+
+    // console.log("Dữ liệu gửi đi:", JSON.stringify(finalDesignData, null, 2));
+
+    try {
+      let response;
+      if (finalDesignData.designId) {
+        // Nếu có designId, gọi API updateDesign
+        response = await Axios({
+          ...SummaryApi.updateDesign,
+          data: finalDesignData,
+          timeout: 10000,
+        });
+      } else {
+        // Nếu không có designId, gọi API addDesign
+        response = await Axios({
+          ...SummaryApi.addDesign,
+          data: finalDesignData,
+          timeout: 10000,
+        });
+      }
+
+      // console.log("Dữ liệu trả về:", response.data.data);
+      if (response.data.success) {
+        toast.success(finalDesignData.designId ? "Cập nhật thiết kế thành công!" : "Thiết kế đã được lưu thành công!");
+        setTempDesign(null);
+        navigate("/dashboard/design");
+      } else {
+        throw new Error(response.data.message || "Lỗi không xác định");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lưu thiết kế:", error);
+      if (error.response && error.response.data) {
+        console.log("Chi tiết lỗi từ server:", error.response.data);
+        toast.error(`Không thể lưu thiết kế: ${error.response.data.message || error.message}`);
+      } else {
+        toast.error("Không thể lưu thiết kế: " + error.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // console.log("Dữ liệu gửi đi:", JSON.stringify(finalDesignData, null, 2)); // Log dữ liệu
-
-  try {
-    const response = await Axios({
-      ...SummaryApi.addDesign,
-      data: finalDesignData,
-      timeout: 10000,
-    });
-    // console.log("Dữ liệu tra ve:", response.data.data); 
-    if (response.data.success) {
-      toast.success("Thiết kế đã được lưu thành công!");
-      setTempDesign(null);
-      navigate("/dashboard/design");
-    } else {
-      throw new Error(response.data.message || "Lỗi không xác định");
-    }
-  } catch (error) {
-    console.error("Lỗi khi lưu thiết kế:", error);
-    if (error.response && error.response.data) {
-      console.log("Chi tiết lỗi từ server:", error.response.data);
-      toast.error(
-        `Không thể lưu thiết kế: ${error.response.data.message || error.message}`
-      );
-    } else {
-      toast.error("Không thể lưu thiết kế: " + error.message);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
   const editDesign = () => {
     const designToEdit = {
       ...tempDesign,
       name: formData.name,
-      style: formData.style,
+      styleDesign: formData.styleDesign,
       basePrice: formData.basePrice,
       tags: formData.tags,
       isPublic: formData.isPublic,
+      _id: formData.designId
     };
     navigate("/design", { state: { designToEdit } });
   };
@@ -146,7 +181,6 @@ const AdminUploadDesign = () => {
 
       <div className="p-4 bg-white shadow-md rounded-md mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Canvas hiển thị thiết kế */}
           {tempDesign ? (
             <div className="grid justify-center">
               {tempDesign.thumbnail ? (
@@ -176,7 +210,6 @@ const AdminUploadDesign = () => {
               </div>
             </div>
           )}
-          {/* Form thông tin */}
           <div className="grid grid-cols-1 gap-4 p-4 border-l border-gray-400">
             <div>
               <label className="block text-sm font-medium">Tên thiết kế</label>
@@ -189,23 +222,43 @@ const AdminUploadDesign = () => {
                 placeholder="Nhập tên thiết kế"
               />
             </div>
-            <div>
+
+            <div className="grid gap-1">
               <label className="block text-sm font-medium">Phong cách</label>
               <select
-                name="style"
-                value={formData.style}
-                onChange={handleInputChange}
+                name="styleDesign"
+                id="styleDesign"
                 className="w-full p-2 border rounded-md"
+                onChange={handleStyleChange}
               >
-                <option value="horror">Horror</option>
-                <option value="funny">Funny</option>
-                <option value="cute">Cute</option>
-                <option value="minimalist">Minimalist</option>
-                <option value="vintage">Vintage</option>
-                <option value="sport">Sport</option>
-                <option value="casual">Casual</option>
+                <option value="">Chọn phong cách</option>
+                {allStyleDesign.map((style) => (
+                  <option key={style._id} value={style._id}>
+                    {style.name}
+                  </option>
+                ))}
               </select>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {formData.styleDesign.map((styleId) => {
+                  const style = allStyleDesign.find((s) => s._id === styleId);
+                  return (
+                    <span
+                      key={styleId}
+                      className="bg-gray-200 px-2 py-1 rounded-md text-sm flex items-center"
+                    >
+                      {style?.name || "Unknown"}
+                      <button
+                        onClick={() => handleRemoveStyle(styleId)}
+                        className="ml-1 text-red-500"
+                      >
+                        x
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
             </div>
+
             <div>
               <label className="block text-sm font-medium">Giá cơ bản</label>
               <input
@@ -219,9 +272,7 @@ const AdminUploadDesign = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                Tags (tối đa 10)
-              </label>
+              <label className="block text-sm font-medium">Tags (tối đa 10)</label>
               <input
                 type="text"
                 value={tagInput}
@@ -265,15 +316,22 @@ const AdminUploadDesign = () => {
             </div>
 
             <button
-              className={`${
-                tempDesign
-                  ? "w-full h-12 bg-primary p-2 text-sm px-3 flex items-center justify-center hover:text-white font-semibold rounded-md hover:bg-primary-darker"
-                  : "w-full h-12 flex items-center justify-center bg-gray-200 text-sm p-3 px-3 text-gray-400 rounded"
-              }`}
+              className={`
+                w-full h-12 p-2 text-sm px-3 flex items-center justify-center font-semibold rounded-md
+                ${tempDesign
+                  ? "bg-primary hover:text-white hover:bg-primary-darker"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"}
+              `}
               onClick={saveFinalDesign}
               disabled={loading || !tempDesign}
             >
-              {loading ? <Loading size="small" /> : "Lưu thiết kế"}
+              {loading ? (
+                <Loading size="small" />
+              ) : formData.designId ? (
+                "Cập nhật thiết kế"
+              ) : (
+                "Lưu thiết kế"
+              )}
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import { MdDelete, MdFileUpload } from "react-icons/md";
 import uploadImage from "../../utils/uploadImage";
@@ -10,29 +10,29 @@ import {showAlert} from "../../utils/ShowAlert";
 import Axios from "../../utils/Axios";
 import { FaXmark } from "react-icons/fa6";
 
-const AddProduct = ({ close, fetchData }) => {
+const EditProduct = ({ data: initialData, close, fetchData }) => {
   const [loadingImage, setLoadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState({
+    productId: initialData?._id || "", // Changed _id to productId to match backend
+    name: initialData?.name || "",
+    image: initialData?.image || [],
+    category: initialData?.category?._id || initialData?.category || "",
+    basePrice: initialData?.basePrice || "",
+    material: initialData?.material || "",
+    description: initialData?.description || "",
+    variants: initialData?.variants?.length > 0
+      ? initialData.variants
+      : [{
+          color: "",
+          colorCode: "#000000",
+          sizes: [{ name: "", price: "", stock: "" }],
+        }],
+    design: initialData?.design || null,
+    designPlacement: initialData?.designPlacement || { x: 0.5, y: 0.3, scale: 1.0 },
+  });
 
   const allCategory = useSelector((state) => state.product.allCategory);
-
-  const [data, setData] = useState({
-    name: "",
-    image: [],
-    category: "",
-    basePrice: "",
-    material: "",
-    description: "",
-    variants: [
-      {
-        color: "",
-        colorCode: "#000000",
-        sizes: [{ name: "", price: "", stock: "" }],
-      },
-    ],
-    design: null,
-    designPlacement: { x: 0.5, y: 0.3, scale: 1.0 },
-  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,7 +75,7 @@ const AddProduct = ({ close, fetchData }) => {
   };
 
   const deleteVariant = (variantIndex) => {
-    if (data.variants.length <= 1) return; // Không xóa nếu chỉ còn 1 variant
+    if (data.variants.length <= 1) return;
     const newVariants = [...data.variants];
     newVariants.splice(variantIndex, 1);
     setData((prev) => ({ ...prev, variants: newVariants }));
@@ -83,7 +83,7 @@ const AddProduct = ({ close, fetchData }) => {
 
   const deleteSize = (variantIndex, sizeIndex) => {
     const newVariants = [...data.variants];
-    if (newVariants[variantIndex].sizes.length <= 1) return; // Không xóa nếu chỉ còn 1 size
+    if (newVariants[variantIndex].sizes.length <= 1) return;
     newVariants[variantIndex].sizes.splice(sizeIndex, 1);
     setData((prev) => ({ ...prev, variants: newVariants }));
   };
@@ -124,8 +124,15 @@ const AddProduct = ({ close, fetchData }) => {
 
     if (invalidVariants) {
       showAlert({
-        title:
-          "Vui lòng kiểm tra lại thông tin biến thể (màu sắc, kích thước, giá, tồn kho)",
+        title: "Vui lòng kiểm tra lại thông tin biến thể (màu sắc, kích thước, giá, tồn kho)",
+        icon: "error",
+      });
+      return;
+    }
+
+    if (!data.productId) { 
+      showAlert({
+        title: "Thiếu ID sản phẩm",
         icon: "error",
       });
       return;
@@ -135,29 +142,44 @@ const AddProduct = ({ close, fetchData }) => {
       setLoading(true);
 
       const submitData = {
-        ...data,
+        productId: data.productId, // Changed from _id to productId
+        name: data.name,
+        image: data.image,
+        category: data.category,
+        basePrice: data.basePrice,
+        material: data.material,
+        description: data.description,
         variants: data.variants.map((variant) => ({
-          ...variant,
+          _id: variant._id, // Include variant _id if it exists
+          color: variant.color,
+          colorCode: variant.colorCode,
           sizes: variant.sizes.map((size) => ({
             name: size.name,
             price: Number(size.price) || Number(data.basePrice),
             stock: Number(size.stock) || 0,
           })),
         })),
+        design: data.design,
+        designPlacement: data.designPlacement,
       };
 
-      console.log("Dữ liệu chuẩn bị gửi:", submitData);
+      // console.log("Dữ liệu chuẩn bị gửi:", submitData);
 
       const response = await Axios({
-        ...SummaryApi.createProduct,
+        ...SummaryApi.updateProduct,
         data: submitData,
       });
+
+      console.log("Response từ server:", response.data.data);
+
       if (response.data.success) {
         showAlert({ title: response.data.message, icon: "success" });
-        fetchData(), 
+        
+        fetchData();
         close();
       }
     } catch (error) {
+      console.error("Lỗi khi gửi request:", error);
       AxiosToastError(error);
     } finally {
       setLoading(false);
@@ -168,7 +190,7 @@ const AddProduct = ({ close, fetchData }) => {
     <section className="bg-black/70 fixed inset-0 z-50 flex items-center justify-center">
       <div className="bg-white mx-auto w-full max-w-lg rounded-md shadow-xl">
         <div className="flex justify-between shadow-md p-5 text-xl">
-          <h2 className="font-semibold">Thêm sản phẩm mới</h2>
+          <h2 className="font-semibold">Chỉnh sửa sản phẩm</h2>
           <button onClick={close}>
             <IoCloseOutline
               size={30}
@@ -274,6 +296,7 @@ const AddProduct = ({ close, fetchData }) => {
               name="category"
               id="productCategory"
               className="w-full border border-gray-300 bg-blue-50 rounded p-1 focus-within:border-gray-600 outline-none"
+              value={data.category}
               onChange={handleChange}
             >
               <option value="">Chọn danh mục</option>
@@ -385,7 +408,7 @@ const AddProduct = ({ close, fetchData }) => {
                         onClick={() => deleteSize(variantIndex, sizeIndex)}
                         className="absolute right-0 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-red-500"
                       >
-                        <FaXmark size={18} />
+                        <FaXmark size={12} />
                       </button>
                     )}
                   </div>
@@ -426,22 +449,19 @@ const AddProduct = ({ close, fetchData }) => {
               data.image.length > 0 &&
               data.basePrice &&
               data.category &&
-              data.variants.every(
-                (v) =>
-                  v.color &&
-                  v.colorCode &&
-                  v.sizes.every(
-                    (s) =>
-                      s.name &&
-                      (s.price || data.basePrice) &&
-                      (s.stock || s.stock === 0)
-                  )
+              data.variants.every((v) =>
+                v.color &&
+                v.colorCode &&
+                v.sizes.every((s) =>
+                  s.name && (s.price || data.basePrice) && (s.stock || s.stock === 0)
+                )
               )
                 ? "w-full h-12 bg-primary p-2 text-sm px-3 flex items-center justify-center hover:text-white font-semibold rounded-md hover:bg-primary-darker"
                 : "w-full h-12 flex items-center justify-center bg-gray-200 text-sm p-3 px-3 text-gray-400 rounded"
             }`}
+            disabled={loading}
           >
-            {loading ? <Loading size="medium" /> : "Thêm sản phẩm"}
+            {loading ? <Loading size="medium" /> : "Cập nhật sản phẩm"}
           </button>
         </form>
       </div>
@@ -449,4 +469,4 @@ const AddProduct = ({ close, fetchData }) => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

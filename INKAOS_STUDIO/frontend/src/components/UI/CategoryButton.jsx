@@ -1,6 +1,6 @@
 import React from 'react'
 
-const CategoryButton = ({ label, icon }) => {
+const CategoryButton = ({ label, image }) => {
   return (
     <div>
       <div className='flex flex-col items-center'>
@@ -10,9 +10,11 @@ const CategoryButton = ({ label, icon }) => {
           tabIndex={0}       
           role="button"      
         >
-          <div className="rounded-full p-1.5">
-            {icon}
-          </div>
+          <img
+                  src={image}
+                  alt={label}
+                  className="w-12 h-12 object-cover rounded-full border-2 border-gray-200 shadow-md"
+                />
         </button>
         <span className='text-xs text-white'>{label}</span>
       </div>

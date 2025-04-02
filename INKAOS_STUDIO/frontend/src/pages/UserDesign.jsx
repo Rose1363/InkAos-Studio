@@ -1,36 +1,34 @@
 import React, { useEffect, useState } from "react";
-import AddProduct from "../components/UI/AddProduct";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
 import AxiosToastError from "../utils/AxiosToastError";
+import AdminCardDesign from "../components/UI/AdminCardDesign";
 import Loading from "../components/UI/Loading";
-import AdminCardProduct from "../components/UI/AdminCardProduct";
+import NoData from "../components/UI/NoData";
 import { BiSearch } from "react-icons/bi";
 import { GrCaretPrevious, GrCaretNext } from "react-icons/gr";
-import NoData from "../components/UI/NoData";
-const AdminProduct = () => {
-  const [openAddProduct, setOpenAddProduct] = useState(false);
+import DesignCard from "../components/UI/DesignCard";
+const UserDesign = () => {
   const [loading, setLoading] = useState(false);
-  const [productData, setProductData] = useState([]);
+  const [designData, setDesignData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPageCount, setTotalPageCount] = useState(1);
   const [search, setSearch] = useState("");
 
-  const fetchProduct = async () => {
+  const fetchDesign = async () => {
     try {
       setLoading(true);
       const response = await Axios({
-        ...SummaryApi.getProduct,
+        ...SummaryApi.getDesign,
         data: {
-          page,
+          page: page,
           limit: 10,
-          search,
+          search: search,
         },
       });
       if (response.data.success) {
-        setProductData(response.data.data);
+        setDesignData(response.data.data);
         setTotalPageCount(response.data.totalNoPage || 1);
-        
       }
     } catch (error) {
       AxiosToastError(error);
@@ -39,23 +37,18 @@ const AdminProduct = () => {
     }
   };
 
-  // Gọi lại khi page hoặc search thay đổi
+  // Gọi fetchDesign khi page thay đổi
   useEffect(() => {
-    fetchProduct();
+    fetchDesign();
   }, [page]);
 
+  // Debounce search
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchProduct();
+      fetchDesign();
     }, 300);
     return () => clearTimeout(timeout);
   }, [search]);
-  // Xử lý thay đổi tìm kiếm
-  const handleOnChange = (e) => {
-    const { value } = e.target;
-    setPage(1); // Reset về trang 1 khi tìm kiếm
-    setSearch(value);
-  };
 
   const handleNext = () => {
     if (page < totalPageCount) {
@@ -69,40 +62,40 @@ const AdminProduct = () => {
     }
   };
 
+  const handleOnChange = (e) => {
+    const { value } = e.target;
+    setPage(1);
+    setSearch(value);
+  };
+
   return (
     <section>
       <div className="flex items-center justify-between mb-3 shadow-md p-3">
-        <h2 className="font-semibold text-lg">Danh mục sản phẩm</h2>
-        <button
-          onClick={() => setOpenAddProduct(true)}
-          className="bg-primary p-2 text-sm px-3 hover:text-white font-semibold rounded-md hover:bg-primary-darker"
-        >
-          Thêm sản phẩm
-        </button>
+        <h2 className="font-semibold text-lg">Danh Sách Thiết Kế</h2>
+        <div className="bg-primary flex items-center pl-3">
+          <BiSearch size={20} color="white" />
+          <input
+            type="text"
+            placeholder="Tìm kiếm thiết kế..."
+            value={search}
+            onChange={handleOnChange}
+            className="bg-white border border-gray-200 focus-within:border-blue-200 p-2 ml-3 text-sm px-3 outline-none font-semibold"
+          />
+        </div>
       </div>
 
-      {/* Thanh tìm kiếm */}
-      <div className="px-3">
-        <input
-          type="text"
-          value={search}
-          onChange={handleOnChange}
-          placeholder="Tìm kiếm sản phẩm..."
-          className="w-full p-2 mb-4 outline-none border border-gray-300 focus-within:border-primary rounded-md"
-        />
-      </div>
-
-      {loading ? (
+      <div>
+        {loading ? (
           <Loading size="large" />
-        ) : productData.length === 0 ? (
+        ) : designData.length === 0 ? (
           <NoData />
         ) : (
           <>
             <div className="min-h-[65vh]">
-              <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {productData.map((product) => (
-                  <AdminCardProduct key={product._id} data={product} fetchData={fetchProduct}/>
-                ))}
+              <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {designData.map((design) => (
+                <DesignCard key={design._id} design={design} />
+            ))}
               </div>
             </div>
 
@@ -127,10 +120,9 @@ const AdminProduct = () => {
             </div>
           </>
         )}
-
-      {openAddProduct && <AddProduct close={() => setOpenAddProduct(false)} fetchData={fetchProduct}/>}
+      </div>
     </section>
   );
 };
 
-export default AdminProduct;
+export default UserDesign;

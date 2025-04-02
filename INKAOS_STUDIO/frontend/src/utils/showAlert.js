@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 
 // or via CommonJS
-const showAlert = ({ title, icon }) => {
+export const showAlert = ({ title, icon }) => {
   Swal.fire({
     title: title, 
     icon: icon,   
@@ -10,4 +10,28 @@ const showAlert = ({ title, icon }) => {
   });
 };
 
-export default showAlert;
+
+
+
+export const confirmBox = (onConfirm) => {
+  Swal.fire({
+    title: "Bạn có chắc không?",
+    text: "Bạn sẽ không thể hoàn tác hành động này!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Vâng, xóa nó!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      if (onConfirm && typeof onConfirm === "function") {
+        onConfirm();
+      }
+      Swal.fire({
+        title: "Đã xóa!",
+        text: "Sản phẩm của bạn đã bị xóa.",
+        icon: "success",
+      });
+    }
+  });
+};

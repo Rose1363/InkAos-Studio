@@ -17,10 +17,15 @@ import Checkout from "../pages/Checkout";
 
 import AdminUploadDesign from "../pages/AdminUploadDesign";
 import AdminDesignList from "../pages/AdminDesignList";
-import AdminSubCategory from "../pages/AdminSubCategory";
+
 import AdminCategory from "../pages/AdminCategory";
 import AdminProduct from "../pages/AdminProduct";
 import ProductList from "../pages/ProductList";
+import AdminStyleDesign from "../pages/AdminStyleDesign";
+import DesignList from "../pages/DesignList";
+import DesignDisplay from "../pages/DesignDisplay";
+import DesignProductDisplay from "../pages/DesignProductDisplay";
+import UserDesign from "../pages/UserDesign";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -73,26 +78,30 @@ const router = createBrowserRouter([
           },
           {
             path: "category",
-            element: <AdminCategory />, 
+            element: <AdminCategory />,
           },
           {
-            path: "sub-category",
-            element: <AdminSubCategory />, 
+            path: "style-design",
+            element: <AdminStyleDesign />,
           },
           {
             path: "product",
-            element: <AdminProduct />, 
+            element: <AdminProduct />,
           },
-          
-          
+
           {
             path: "design",
-            element: <AdminDesignList />, 
+            element: <AdminDesignList />,
           },
           {
             path: "upload-design",
-            element: <AdminUploadDesign />, 
+            element: <AdminUploadDesign />,
           },
+          {
+            path: "user-design",
+            element: <UserDesign />,
+          },
+          
         ],
       },
 
@@ -105,19 +114,22 @@ const router = createBrowserRouter([
         element: <ProductDisplay />,
       },
       {
-        path: ":category",
-        children:[
-          {
-            path: ":subCategory",
-            element: <ProductList/>
-          }
-        ]
+        path: "style/:style", 
+        element: <DesignList />,
+      },
+      {
+        path: "category/:category", 
+        element: <ProductList />,
+      },
+      {
+        path: "design/:id",
+        element: <DesignProductDisplay />,
       },
       {
         path: "checkout",
         element: <Checkout />,
       },
-     
+
     ],
   },
 ]);

@@ -44,7 +44,9 @@ const UserMenu = ({ close }) => {
         <div>
           <div className="text-sm font-semibold max-w-[220px] text-left">
             {user.name}
-            <span className="text-red-700 text-sm px-1">{user.role === "(Admin)" ? "Admin" : ""}</span>
+            <span className="text-red-700 text-sm px-1">
+              {user.role === "(Admin)" ? "Admin" : ""}
+            </span>
           </div>
           <div className="text-xs text-blue-500 hover:underline">
             <Link onClick={handleClose} to={"/dashboard/profile"}>
@@ -55,13 +57,20 @@ const UserMenu = ({ close }) => {
       </div>
       <Devider />
       <div className="grid text-sm gap-2">
-        {IsAdmin(user.role) && (
+        {IsAdmin(user.role) ? (
           <Link
             onClick={handleClose}
             to={"/dashboard/category"}
             className="text-left px-2 hover:font-bold"
           >
             Quản lý
+          </Link>
+        ) : (
+          <Link
+            to={"/dashboard/user-design"}
+            className="text-left px-2 hover:font-bold"
+          >
+            Thiết kế của tôi
           </Link>
         )}
 

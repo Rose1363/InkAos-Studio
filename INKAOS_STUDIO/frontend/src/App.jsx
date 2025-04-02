@@ -6,8 +6,9 @@ import { useEffect } from "react";
 import fetchUserDetails from "./utils/fetchUserDetails";
 import { setUserDetails } from "./store/userSlice";
 import { useDispatch } from "react-redux";
-import { setAllCategory, setAllSubCategory, setLoadingCategory } from "./store/productSlice";
+import { setAllCategory, setLoadingCategory } from "./store/productSlice";
 import Axios from "./utils/Axios";
+import {setStyleDesign} from "./store/designSlice"
 import SummaryApi from "./common/SummaryApi";
 function App() {
   const dispatch = useDispatch();
@@ -32,14 +33,14 @@ function App() {
     }
   };
 
-  const fetchSubCategory = async () => {
+  const fetchStyleDesign = async () => {
     try {
       const response = await Axios({
-        ...SummaryApi.getSubCategory,
+        ...SummaryApi.getStyleDesign,
       });
 
       if (response.data.success) {
-        dispatch(setAllSubCategory(response.data.data));
+        dispatch(setStyleDesign(response.data.data));
       }
     } catch (error) {
     } finally {
@@ -49,7 +50,7 @@ function App() {
   useEffect(() => {
     fetchUser();
     fetchCategory();
-    fetchSubCategory()
+    fetchStyleDesign()
   }, []);
 
   return (

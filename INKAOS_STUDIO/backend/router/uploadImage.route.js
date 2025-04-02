@@ -5,6 +5,6 @@ import { uploadImageController } from "../controllers/uploadImage.controller.js"
 
 const uploadImageRouter = Router()
 
-uploadImageRouter.post("/upload", auth,upload.single("image"), uploadImageController)
+uploadImageRouter.post("/upload",upload.single("image"), uploadImageController)
 
 export default uploadImageRouter

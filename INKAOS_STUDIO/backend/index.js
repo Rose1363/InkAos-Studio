@@ -11,7 +11,7 @@ import addressRouter from './router/address.route.js';
 import textDesignRouter from './router/textDesign.route.js';
 import categoryRouter from './router/category.route.js';
 import uploadImageRouter from './router/uploadImage.route.js';
-import subCategoryRouter from './router/subCategory.router.js';
+import subCategoryRouter from './router/styleDesign.router.js';
 import productRouter from './router/product.route.js';
 import designRouter from './router/design.route.js';
 dotenv.config();
@@ -46,7 +46,7 @@ app.get('/', (request, response) => {
 
 app.use('/api/user', userRouter)
 app.use('/api/category', categoryRouter)
-app.use('/api/subcategory', subCategoryRouter)
+app.use('/api/style-design', subCategoryRouter)
 app.use('/api/image', uploadImageRouter)
 app.use('/api/address', addressRouter)
 app.use('/api/text', textDesignRouter)

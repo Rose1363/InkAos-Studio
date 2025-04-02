@@ -50,12 +50,12 @@ const SummaryApi = {
     url: "/api/category/get",
     method: "get",
   },
-  addSubCategory: {
-    url: "/api/subcategory/add",
+  addStyleDesign: {
+    url: "/api/style-design/add",
     method: "post",
   },
-  getSubCategory: {
-    url: "/api/subcategory/get",
+  getStyleDesign: {
+    url: "/api/style-design/get",
     method: "get",
   },
   createProduct: {
@@ -70,7 +70,18 @@ const SummaryApi = {
     url: "/api/product/get-product-by-category",
     method: "post",
   },
-
+  getProductDetail: {
+    url: "/api/product/get-product-detail",
+    method: "post",
+  },
+  updateProduct: {
+    url: "/api/product/update",
+    method: "put",
+  },
+  deleteProduct: {
+    url: "/api/product/delete",
+    method: "delete",
+  },
   createAddress: {
     url: "/api/address/create",
     method: "post",
@@ -95,6 +106,26 @@ const SummaryApi = {
     url: "/api/design/get",
     method: "post",
   },
+  getPublicDesign: {
+    url: "/api/design/get-public-design",
+    method: "post",
+  },
+  getDesignByStyle: {
+    url: "/api/design/get-design-by-style",
+    method: "post",
+  },
+
+  getDesignDetail: {
+    url: "/api/design/get-design-detail",
+    method: "post",
+  },
+  updateDesign: {
+    url: "/api/design/update",
+    method: "put",
+  },
+ 
+  
+  
 };
 
 export default SummaryApi;

@@ -1,8 +1,32 @@
 import React from 'react'
 import { RiBringToFront } from "react-icons/ri";
 import { RiSendToBack } from "react-icons/ri";
-const LayerControls = ({bringToFront, sendToBack}) => {
+const LayerControls = ({objects, setObjects, selectedId}) => {
   
+  const bringToFront = () => {
+    if (selectedId) {
+      const selectedIndex = objects.findIndex((obj) => obj.id === selectedId);
+      if (selectedIndex !== -1 && selectedIndex < objects.length - 1) {
+        const newObjects = [...objects];
+        const [selected] = newObjects.splice(selectedIndex, 1);
+        newObjects.push(selected);
+        setObjects(newObjects);
+      }
+    }
+  };
+
+  const sendToBack = () => {
+    if (selectedId) {
+      const selectedIndex = objects.findIndex((obj) => obj.id === selectedId);
+      if (selectedIndex !== -1 && selectedIndex > 0) {
+        const newObjects = [...objects];
+        const [selected] = newObjects.splice(selectedIndex, 1);
+        newObjects.unshift(selected);
+        setObjects(newObjects);
+      }
+    }
+  };
+
   return (
     <div >
       <label className="block mb-1">Layer</label>

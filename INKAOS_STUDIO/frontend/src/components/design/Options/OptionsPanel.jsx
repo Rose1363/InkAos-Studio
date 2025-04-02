@@ -6,8 +6,7 @@ import ShapeOptionControls from "./Shape/ShapeOptionControls";
 const OptionsPanel = ({
   selectedObject,
   updateObject,
-  bringToFront,
-  sendToBack,
+  objects, setObjects, selectedId
 }) => {
   const handleClick = (e) => {
     e.stopPropagation(); // Ngăn sự kiện click lan truyền lên window
@@ -22,21 +21,24 @@ const OptionsPanel = ({
       <TextOptions
         selectedObject={selectedObject}
         updateObject={updateObject} 
-        bringToFront={bringToFront}
-        sendToBack={sendToBack}/>}
+        objects={objects}
+          setObjects={setObjects}
+          selectedId={selectedId}/>}
       {selectedObject.type === "image" && 
       <ImageOptions 
       selectedObject={selectedObject}
       updateObject={updateObject} 
-      bringToFront={bringToFront}
-      sendToBack={sendToBack}
+      objects={objects}
+      setObjects={setObjects}
+      selectedId={selectedId}
       />}
       {
         selectedObject.type === "shape" &&
         <ShapeOptionControls selectedObject={selectedObject}
       updateObject={updateObject} 
-      bringToFront={bringToFront}
-      sendToBack={sendToBack} />
+      objects={objects}
+          setObjects={setObjects}
+          selectedId={selectedId} />
       }
     </div>
   );

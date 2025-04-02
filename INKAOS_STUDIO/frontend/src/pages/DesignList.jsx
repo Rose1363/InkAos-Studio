@@ -6,47 +6,50 @@ import Axios from "../utils/Axios";
 import AxiosToastError from "../utils/AxiosToastError";
 import SummaryApi from "../common/SummaryApi";
 import CardLoading from "../components/UI/CardLoading";
-
-const ProductList = () => {
-  const { category } = useParams();
+import DesignCard from "../components/UI/DesignCard";
+import banner5 from "../assets/banner5.png"
+const DesignList = () => {
+  const { style } = useParams();
+  
+  const id = style?.split("-")?.slice(-1)[0] || null;
  
-  const id = category?.split("-")?.slice(-1)[0] || null;
-  const categoryName = category?.split("-").slice(0, -1).join(" ") || "Danh mục";
-  const [products, setProducts] = useState([]);
+  const categoryName = style?.split("-").slice(0, -1).join(" ") || "Danh mục";
+ 
+  const [design, setDesign] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 12; // Số sản phẩm mỗi trang
 
-  const fetchCategoryProduct = async () => {
+  const fetchDesignByStyle = async () => {
     if (!id) return;
     try {
       setLoading(true);
       const response = await Axios({
-        ...SummaryApi.getProductByCategory,
+        ...SummaryApi.getDesignByStyle,
         data: { id },
       });
 
       if (response.data.success) {
-        const fetchedProducts = response.data.data || [];
-        setProducts(fetchedProducts);
-        setTotalPages(Math.ceil(fetchedProducts.length / itemsPerPage)); // Tính tổng số trang
+        const fetchedDesign = response.data.data || [];
+        setDesign(fetchedDesign);
+        setTotalPages(Math.ceil(fetchedDesign.length / itemsPerPage)); // Tính tổng số trang
       }
     } catch (error) {
       AxiosToastError(error);
-      setProducts([]);
+      setDesign([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategoryProduct();
+    fetchDesignByStyle();
   }, [id]);
 
   // Tính toán sản phẩm hiển thị trên trang hiện tại
   const startIndex = (page - 1) * itemsPerPage;
-  const currentProducts = products.slice(startIndex, startIndex + itemsPerPage);
+  const currentProducts = design.slice(startIndex, startIndex + itemsPerPage);
 
   const handlePrevPage = () => {
     if (page > 1) setPage(page - 1);
@@ -58,14 +61,14 @@ const ProductList = () => {
 
   return (
     <section className="min-h-screen bg-gray-100">
-      <div className="container mx-auto py-8 px-4">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-6 capitalize">
-          {decodeURIComponent(categoryName)}
-        </h1>
+      <div className="px-4 grid gap-10">
+        <div>
+          <img src={banner5} alt=""  className="w-full h-full"/>
+        </div>
 
         {/* Loading State */}
-        {loading ? (
+       <div className="container mx-auto">
+       {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             {Array.from({ length: 6 }).map((_, index) => (
               <CardLoading key={index} />
@@ -77,8 +80,8 @@ const ProductList = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
               {currentProducts.length > 0 ? (
                 currentProducts.map((product, index) => (
-                  <CardProduct
-                    product={product}
+                  <DesignCard
+                    design={product}
                     key={`${product._id}-ProductList-${index}`}
                   />
                 ))
@@ -90,7 +93,7 @@ const ProductList = () => {
             </div>
 
             {/* Pagination */}
-            {products.length > itemsPerPage && (
+            {design.length > itemsPerPage && (
               <div className="flex justify-center items-center mt-8 gap-4">
                 <button
                   onClick={handlePrevPage}
@@ -121,9 +124,11 @@ const ProductList = () => {
             )}
           </>
         )}
+       </div>
       </div>
     </section>
   );
 };
 
-export default ProductList;
+
+export default DesignList

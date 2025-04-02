@@ -5,11 +5,11 @@ import ColorSettings from "../General/ColorSettings";
 import AlignmentSettings from "./AlignmentSettings";
 import FontSizeSetting from "./FontSizeSetting";
 import StyleSettings from "./StyleSettings"
-const TextOptions = ({ selectedObject, updateObject, bringToFront, sendToBack }) => {
+const TextOptions = ({ selectedObject, updateObject, objects, setObjects, selectedId}) => {
   return (
     <div className="p-3 flex flex-col gap-3">
-      <LayerControls bringToFront={bringToFront} sendToBack={sendToBack}/>
-      <FontSettings selectedObject={selectedObject} updateObject={updateObject}/>
+<LayerControls objects={objects} setObjects={setObjects} selectedId={selectedId} /> 
+     <FontSettings selectedObject={selectedObject} updateObject={updateObject}/>
       <FontSizeSetting selectedObject={selectedObject} updateObject={updateObject} />
       <AlignmentSettings selectedObject={selectedObject} updateObject={updateObject}/>
       <StyleSettings selectedObject={selectedObject} updateObject={updateObject}/>
