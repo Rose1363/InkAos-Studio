@@ -8,15 +8,21 @@ import { useSelector } from "react-redux";
 import { FaShoppingCart } from "react-icons/fa";
 import Axios from "../../utils/Axios";
 
-const AddToCartButton = ({selectedProduct,selectedVariant, selectedSize , designData, quantity}) => {
-    const user = useSelector((state) => state.user);
-      const [loading, setLoading] = useState(false); // Sửa giá trị ban đầu thành false
-      const {fetchCartItem} = useGlobalContext()
+const AddToCartButton = ({
+  selectedProduct,
+  selectedVariant,
+  selectedSize,
+  designData,
+  quantity,
+}) => {
+  const user = useSelector((state) => state.user);
+  const [loading, setLoading] = useState(false); // Sửa giá trị ban đầu thành false
+  const { fetchCartItem } = useGlobalContext();
   const handleAddToCart = async () => {
     // Kiểm tra người dùng đã đăng nhập chưa
     if (!user?._id) {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
-    //   navigate("/login");
+      //   navigate("/login");
       return;
     }
 
@@ -39,7 +45,6 @@ const AddToCartButton = ({selectedProduct,selectedVariant, selectedSize , design
         (selectedVariant.sizes[0].price || 0) +
         (designData.basePrice || 0),
     };
-  
 
     try {
       setLoading(true);
@@ -82,11 +87,13 @@ const AddToCartButton = ({selectedProduct,selectedVariant, selectedSize , design
           : "bg-red-600 hover:bg-red-700 text-white"
       }`}
     >
-
-        {
-            loading ? (<Loading size="small"/>) :( <div className="flex items-center gap-2"><FaShoppingCart /> Thêm vào giỏ</div>)
-        }
-     
+      {loading ? (
+        <Loading size="small" />
+      ) : (
+        <div className="flex items-center gap-2">
+          <FaShoppingCart /> Thêm vào giỏ
+        </div>
+      )}
     </button>
   );
 };

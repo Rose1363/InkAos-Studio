@@ -72,16 +72,18 @@ const Dashboard = () => {
                   </Link>
 
                   <Link
-                    to={"/dashboard/upload-design"}
-                    className="text-left px-2 hover:font-bold"
-                  >
-                    Thêm thiết kế
-                  </Link>
-                  <Link
                     to={"/dashboard/design"}
                     className="text-left px-2 hover:font-bold"
                   >
                     Thiết kế
+                  </Link>
+
+                  
+                  <Link
+                    to={"/dashboard/upload-design"}
+                    className="text-left px-2 hover:font-bold"
+                  >
+                    Thêm thiết kế
                   </Link>
                 </div>
               </>

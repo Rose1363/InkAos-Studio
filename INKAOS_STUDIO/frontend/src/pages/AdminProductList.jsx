@@ -13,7 +13,7 @@ const ProductList = () => {
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-console.log(items)
+// console.log(items)
   const fetchPublicItems = async () => {
     try {
       setLoading(true);

@@ -53,12 +53,12 @@ const AdminStyleDesign = () => {
         {styleDesignData.map((style, index) => (
           <div
             key={index}
-            className="grid items-center gap-2 p-2 shadow bg-white rounded-lg w-36"
+            className="grid items-center justify-center gap-2"
           >
             <img
               src={style.image}
               alt={style.name}
-              className="w-full h-full object-scale-down border border-gray-200"
+              className="w-30 h-30 rounded-full object-fill border border-gray-200"
             />
 
             <p className="text-sm font-medium text-center">{style.name}</p>

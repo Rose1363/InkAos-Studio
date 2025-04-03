@@ -59,18 +59,18 @@ const itemSchema = new mongoose.Schema(
   }
 );
 
-// Index để hỗ trợ tìm kiếm
-itemSchema.index({ productName: "text", designName: "text" });
+itemSchema.pre("save", function (next) {
+  this.totalPrice = (this.productBasePrice || 0) + (this.designBasePrice || 0) + this.variantPrice;
+  next();
+});
 
-// Middleware để xóa Item khi Product, Design, hoặc Variant bị xóa
 itemSchema.pre("deleteOne", { document: false, query: true }, async function (next) {
   const item = await this.model.findOne(this.getQuery());
-  if (item) {
-    await mongoose.model("Cart").updateMany(
-      { "items.itemId": item._id },
-      { $pull: { items: { itemId: item._id } } }
-    );
-  }
+  if (!item) return next();
+  await mongoose.model("Cart").updateMany(
+    { "items.itemId": item._id },
+    { $pull: { items: { itemId: item._id } } }
+  );
   next();
 });
 

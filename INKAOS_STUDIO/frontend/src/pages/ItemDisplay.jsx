@@ -21,11 +21,10 @@ const ItemDisplay = () => {
   const navigate = useNavigate();
 
   const parts = item?.split("-") || [];
- 
+
   const categoryId = parts[0]; // "67dc08f3a4a6059ecf3fb313"
   const designId = parts.length > 0 ? parts[parts.length - 1] : null; // "67eacbf4fa8cc03ecd789a2f"
   const colorCode = parts.length > 2 ? parts[parts.length - 2] : null; // "#ec55bc"
-  
 
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -60,11 +59,15 @@ const ItemDisplay = () => {
       if (response.data.success && response.data.data) {
         setDesignData({
           name: response.data.data.name || "Thiết kế không tên",
-          thumbnail: response.data.data.thumbnail || "https://via.placeholder.com/400",
+          thumbnail:
+            response.data.data.thumbnail || "https://via.placeholder.com/400",
           basePrice: response.data.data.basePrice || 0,
           elements: response.data.data.elements || [],
           _id: response.data.data._id,
-          isPublic: response.data.data.isPublic !== undefined ? response.data.data.isPublic : true,
+          isPublic:
+            response.data.data.isPublic !== undefined
+              ? response.data.data.isPublic
+              : true,
         });
       } else {
         setError(response.data.message || "Dữ liệu thiết kế không hợp lệ.");
@@ -72,7 +75,9 @@ const ItemDisplay = () => {
     } catch (err) {
       console.error("Fetch Design Error:", err);
       if (err.response) {
-        setError(err.response.data.message || "Lỗi từ server khi tải thiết kế.");
+        setError(
+          err.response.data.message || "Lỗi từ server khi tải thiết kế."
+        );
       } else if (err.request) {
         setError("Không thể kết nối đến server. Vui lòng kiểm tra mạng.");
       } else {
@@ -93,12 +98,14 @@ const ItemDisplay = () => {
         data: { id: category },
       });
       if (response.data.success) {
-       const fetchedProducts = response.data.data || [];
+        const fetchedProducts = response.data.data || [];
         setProducts(fetchedProducts);
         // Tự động chọn variant khớp với colorCode từ URL
         if (fetchedProducts.length > 0 && colorCode) {
           const product = fetchedProducts[0];
-          const variant = product.variants.find((v) => v.colorCode === colorCode) || product.variants[0];
+          const variant =
+            product.variants.find((v) => v.colorCode === colorCode) ||
+            product.variants[0];
           setSelectedProduct(product);
           setSelectedVariant(variant);
         }
@@ -179,7 +186,10 @@ const ItemDisplay = () => {
               selectedSize={selectedSize}
             />
             <div className="grid gap-2 mb-6">
-              <label htmlFor="productCategory" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="productCategory"
+                className="text-sm font-medium text-gray-700"
+              >
                 Chọn danh mục
               </label>
               <select
@@ -195,7 +205,11 @@ const ItemDisplay = () => {
                   </option>
                 ))}
               </select>
-              <ProductWiseCatgory products={products} onProductSelect={handleProductSelect} selectedProduct={selectedProduct}/>
+              <ProductWiseCatgory
+                products={products}
+                onProductSelect={handleProductSelect}
+                selectedProduct={selectedProduct}
+              />
             </div>
             <VariantSelector
               selectedProduct={selectedProduct}
@@ -228,11 +242,15 @@ const ItemDisplay = () => {
               onClick={handleCustomize}
               disabled={
                 !selectedProduct ||
-                selectedProduct.variants.every((v) => v.sizes.every((s) => s.stock === 0))
+                selectedProduct.variants.every((v) =>
+                  v.sizes.every((s) => s.stock === 0)
+                )
               }
               className={`flex-1 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
                 !selectedProduct ||
-                selectedProduct.variants.every((v) => v.sizes.every((s) => s.stock === 0))
+                selectedProduct.variants.every((v) =>
+                  v.sizes.every((s) => s.stock === 0)
+                )
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}

@@ -24,16 +24,16 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
-// Cập nhật `updatedAt` trước khi lưu
-cartSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-// Xóa các Item khi xóa giỏ hàng
 cartSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
   const itemIds = this.items.map((item) => item.itemId);
-  await mongoose.model("Item").deleteMany({ _id: { $in: itemIds } });
+  await mongoose.model("Cart").updateMany(
+    { "items.itemId": { $in: itemIds } },
+    { $pull: { items: { itemId: { $in: itemIds } } } }
+  );
+  const remainingItems = await mongoose.model("Cart").find({ "items.itemId": { $in: itemIds } });
+  if (remainingItems.length === 0) {
+    await mongoose.model("Item").deleteMany({ _id: { $in: itemIds } });
+  }
   next();
 });
 

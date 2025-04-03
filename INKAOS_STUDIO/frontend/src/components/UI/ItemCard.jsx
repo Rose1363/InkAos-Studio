@@ -9,7 +9,7 @@ const ItemCard = ({ item }) => {
     "#",
     "%23"
   )}-${item.designId._id}`;
-  console.log(url);
+//   console.log(url);
   return (
     <Link
       to={url}

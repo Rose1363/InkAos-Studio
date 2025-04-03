@@ -8,10 +8,10 @@ import connectDB from './config/connectDB.js';
 import userRouter from './router/user.route.js';
 
 import addressRouter from './router/address.route.js';
-import textDesignRouter from './router/textDesign.route.js';
+
 import categoryRouter from './router/category.route.js';
 import uploadImageRouter from './router/uploadImage.route.js';
-import subCategoryRouter from './router/styleDesign.route.js';
+
 import productRouter from './router/product.route.js';
 import designRouter from './router/design.route.js';
 import cartRouter from './router/cart.route.js';
@@ -52,7 +52,7 @@ app.use('/api/category', categoryRouter)
 app.use('/api/style-design', styleDesignRouter)
 app.use('/api/image', uploadImageRouter)
 app.use('/api/address', addressRouter)
-app.use('/api/text', textDesignRouter)
+
 app.use('/api/product', productRouter)
 app.use('/api/design', designRouter)
 app.use('/api/cart', cartRouter)

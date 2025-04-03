@@ -81,12 +81,12 @@ function App() {
       </main>
       <Footer />
       <Toaster
-        // toastOptions={{
-        //   duration: 2000, // Thời gian hiển thị (ms)
-        //   style: {
-        //     zIndex: 100, // Cao hơn modal
-        //   },
-        // }}
+        toastOptions={{
+          duration: 1000, // Thời gian hiển thị (ms)
+          style: {
+            zIndex: 100, // Cao hơn modal
+          },
+        }}
       />
     </GlobalProvider>
   );

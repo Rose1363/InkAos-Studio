@@ -132,12 +132,16 @@ const SummaryApi = {
     method: "post",
   },
   deleteCartItem: {
-    url: "/api/cart/ delete-cart-item",
+    url: "/api/cart/delete-cart-item",
     method: "delete",
   },
   getPublicItems: {
     url: "/api/items/public-items",
     method: "GET",
+  },
+  updateCartItemQuantity: {
+    url: "/api/cart/update-quantity",
+    method: "PUT",
   },
   
 };

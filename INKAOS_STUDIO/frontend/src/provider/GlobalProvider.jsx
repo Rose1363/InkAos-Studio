@@ -19,7 +19,7 @@ const GlobalProvider = ({ children }) => {
       });
       if (response.data.success) {
         dispatch(handleAddItemCart(response.data.data));
-        console.log(response.data.data);
+        // console.log(response.data.data);
       } else {
         toast.error(response.data.message || "Không thể tải giỏ hàng!");
       }
