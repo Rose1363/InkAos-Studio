@@ -1,9 +1,6 @@
 import React from "react";
 
-
-const ProductWiseCategory = ({ products, onProductSelect }) => {
-  
-
+const ProductWiseCategory = ({ products, onProductSelect, selectedProduct }) => {
   const handleProductClick = (product) => {
     onProductSelect(product);
   };
@@ -16,7 +13,11 @@ const ProductWiseCategory = ({ products, onProductSelect }) => {
             products.map((product) => (
               <div
                 key={product._id}
-                className="w-16 h-16 border border-gray-300 rounded overflow-hidden cursor-pointer hover:border-blue-500 transition-colors"
+                className={`w-16 h-16 border rounded overflow-hidden cursor-pointer hover:border-blue-500 transition-colors ${
+                  selectedProduct?._id === product._id
+                    ? "border-2 border-green-400"
+                    : "border-gray-300"
+                }`}
                 onClick={() => handleProductClick(product)}
               >
                 <img
@@ -33,14 +34,9 @@ const ProductWiseCategory = ({ products, onProductSelect }) => {
             <p className="text-gray-500">Không có sản phẩm nào.</p>
           )}
         </div>
-
-       
       </div>
-      
     </div>
   );
 };
-
-
 
 export default ProductWiseCategory;

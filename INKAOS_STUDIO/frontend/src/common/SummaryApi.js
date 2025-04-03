@@ -135,7 +135,10 @@ const SummaryApi = {
     url: "/api/cart/ delete-cart-item",
     method: "delete",
   },
- 
+  getPublicItems: {
+    url: "/api/items/public-items",
+    method: "GET",
+  },
   
 };
 

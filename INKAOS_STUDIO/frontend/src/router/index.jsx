@@ -20,10 +20,11 @@ import AdminDesignList from "../pages/AdminDesignList";
 
 import AdminCategory from "../pages/AdminCategory";
 import AdminProduct from "../pages/AdminProduct";
-import ProductList from "../pages/ProductList";
+import ProductList from "../pages/AdminProductList";
 import AdminStyleDesign from "../pages/AdminStyleDesign";
 import DesignList from "../pages/DesignList";
 import DesignDisplay from "../pages/DesignDisplay";
+import ItemDisplay from "../pages/ItemDisplay";
 import DesignProductDisplay from "../pages/DesignProductDisplay";
 import UserDesign from "../pages/UserDesign";
 const router = createBrowserRouter([
@@ -117,9 +118,17 @@ const router = createBrowserRouter([
         path: "style/:style", 
         element: <DesignList />,
       },
+      // {
+      //   path: "category/:category", 
+      //   element: <ProductList />,
+      // },
       {
-        path: "category/:category", 
+        path: ":category/:category", 
         element: <ProductList />,
+      },
+      {
+        path: "item/:item", 
+        element: <ItemDisplay />,
       },
       {
         path: "design/:id",

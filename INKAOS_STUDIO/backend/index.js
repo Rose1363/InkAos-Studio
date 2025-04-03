@@ -11,10 +11,12 @@ import addressRouter from './router/address.route.js';
 import textDesignRouter from './router/textDesign.route.js';
 import categoryRouter from './router/category.route.js';
 import uploadImageRouter from './router/uploadImage.route.js';
-import subCategoryRouter from './router/styleDesign.router.js';
+import subCategoryRouter from './router/styleDesign.route.js';
 import productRouter from './router/product.route.js';
 import designRouter from './router/design.route.js';
 import cartRouter from './router/cart.route.js';
+import itemRouter from './router/item.route.js';
+import styleDesignRouter from './router/styleDesign.route.js';
 dotenv.config();
 
 const app = express();
@@ -47,13 +49,14 @@ app.get('/', (request, response) => {
 
 app.use('/api/user', userRouter)
 app.use('/api/category', categoryRouter)
-app.use('/api/style-design', subCategoryRouter)
+app.use('/api/style-design', styleDesignRouter)
 app.use('/api/image', uploadImageRouter)
 app.use('/api/address', addressRouter)
 app.use('/api/text', textDesignRouter)
 app.use('/api/product', productRouter)
 app.use('/api/design', designRouter)
 app.use('/api/cart', cartRouter)
+app.use("/api/items", itemRouter);
 // Start the server
 connectDB().then(()=>{
     app.listen(PORT, () => {

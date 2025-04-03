@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { validURLConvert } from "../utils/validURLConvert";
 import PublicDesigns from "./PublicDesigns";
+import ProductList from "./AdminProductList";
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
@@ -21,8 +22,9 @@ const Home = () => {
   };
 
   const redirectToProductList = (id, name) => {
-    const url = `/category/${validURLConvert(name)}-${id}`;
+    const url = `/${name.toString().replaceAll(" ", "")}/${validURLConvert(name)}-${id}`;
     navigate(url);
+    
   };
 
   useEffect(() => {
@@ -86,6 +88,12 @@ const Home = () => {
 <div>
 
   <PublicDesigns/>
+
+ 
+</div>
+
+<div>
+<ProductList/>
 </div>
       {/* Product Section */}
       <div className="container mx-auto py-6">

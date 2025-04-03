@@ -22,7 +22,7 @@ const ProductImageGallery = ({ selectedProduct,selectedVariant, designData, imag
             <img
               src={imagesWithThumbnail[imageIndex] || "https://via.placeholder.com/400"}
               alt={selectedProduct?.name || "Sản phẩm"}
-              className="w-full h-full object-contain"
+              className="w-full h-full object-fill"
             />
             {imageIndex !== imagesWithThumbnail.length - 1 && designData.thumbnail && (
               <img
@@ -39,7 +39,7 @@ const ProductImageGallery = ({ selectedProduct,selectedVariant, designData, imag
           <div
             key={index}
             onClick={() => setImageIndex(index)}
-            className={`cursor-pointer w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+            className={`cursor-pointer w-2.5 h-2.5 rounded transition-all duration-300 ${
               index === imageIndex ? "bg-indigo-600 scale-125" : "bg-gray-300"
             }`}
           />
@@ -64,7 +64,7 @@ const ProductImageGallery = ({ selectedProduct,selectedVariant, designData, imag
                 index === imageIndex ? "border-indigo-400 shadow-md" : "border-gray-200"
               }`}
             >
-              <div className="relative h-full rounded-lg overflow-hidden" style={{ backgroundColor }}>
+              <div className="relative h-full rounded overflow-hidden" style={{ backgroundColor }}>
                 <img
                   src={img || "https://via.placeholder.com/400"}
                   alt={`Thumbnail ${index}`}

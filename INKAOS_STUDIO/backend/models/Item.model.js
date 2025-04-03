@@ -23,6 +23,7 @@ const itemSchema = new mongoose.Schema(
       ref: "Design",
       required: false,
     },
+    designImage : { type: String },
     designName: { type: String },
     designBasePrice: { type: Number },
 
@@ -32,6 +33,11 @@ const itemSchema = new mongoose.Schema(
       required: true,
     },
     color: { type: String, required: true },
+    colorCode: {
+      type: String, 
+      required: true,
+      default: "#000000" 
+    },
     size: { type: String, required: true },
     variantPrice: { type: Number, required: true },
 

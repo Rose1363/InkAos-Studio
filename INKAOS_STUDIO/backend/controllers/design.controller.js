@@ -237,7 +237,7 @@ export const getDesignDetail = async (request, response) => {
         error: true,
       });
     }
-
+    
     // Truy vấn
     const design = await DesignModel.findOne({ _id: designId })
       .populate("styleDesign", "name")
