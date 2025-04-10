@@ -8,8 +8,8 @@ const ItemCard = ({ item }) => {
   )}-${validURLConvert(item.designName || "")}-${item.colorCode.replace(
     "#",
     "%23"
-  )}-${item.designId._id}`;
-//   console.log(url);
+  )}-${item.designId._id}-${item.productId._id}`;
+  // console.log(url);
   return (
     <Link
       to={url}

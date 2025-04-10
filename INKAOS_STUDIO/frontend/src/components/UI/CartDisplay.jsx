@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IoCloseOutline, IoTrashOutline } from "react-icons/io5";
+import { IoCloseOutline } from "react-icons/io5";
 import { FaCaretRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import emptyCart from "../../assets/emptyCart.jpeg";
@@ -9,34 +9,24 @@ import { useSelector } from "react-redux";
 import Axios from "../../utils/Axios";
 import SummaryApi from "../../common/SummaryApi";
 import toast from "react-hot-toast";
-import { BiTrash } from "react-icons/bi";
-import { FaTrash } from "react-icons/fa6";
-import { GiTrashCan } from "react-icons/gi";
 import { HiTrash } from "react-icons/hi2";
 
 const CartDisplay = ({ close }) => {
   const cartItem = useSelector((state) => state.cartItem.cart);
   const { fetchCartItem } = useGlobalContext();
   const [quantities, setQuantities] = useState([]);
-  const [selectedItems, setSelectedItems] = useState([]); // State để theo dõi các mục được chọn
+  const [selectedItems, setSelectedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const redirectToCheckout = () => {
-    navigate("/checkout");
-    if (close) close();
-  };
-
-  // Khởi tạo quantities và selectedItems từ cartItem
   useEffect(() => {
     if (cartItem.length > 0) {
       setQuantities(cartItem.map((item) => item.quantity));
-      setSelectedItems(cartItem.map(() => false)); // Mặc định không chọn mục nào
+      setSelectedItems(cartItem.map(() => false));
     }
     setLoading(false);
   }, [cartItem]);
 
-  // Ngăn cuộn trang khi mở giỏ hàng
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -44,28 +34,27 @@ const CartDisplay = ({ close }) => {
     };
   }, []);
 
-  // Cập nhật số lượng qua API
-  const updateQuantity = async (itemId, newQuantity) => {
+  const updateQuantity = async (id, newQuantity) => {
     try {
       const response = await Axios({
         ...SummaryApi.updateCartItemQuantity,
-        data: { _id: itemId, qty: newQuantity },
+        data: { _id: id, qty: newQuantity },
       });
       if (response.data.success) {
         toast.success("Đã cập nhật số lượng!");
         fetchCartItem();
-        console.log(response.data.data);
       }
     } catch (error) {
       toast.error("Lỗi khi cập nhật số lượng!");
       console.error(error);
     }
   };
-  const deleteItem = async (itemId) => {
+
+  const deleteItem = async (id) => {
     try {
       const response = await Axios({
-       ...SummaryApi.deleteCartItem,
-       data: { itemId }
+        ...SummaryApi.deleteCartItem,
+        data: { itemId: id },
       });
       if (response.data.success) {
         toast.success("Đã xóa sản phẩm!");
@@ -76,43 +65,56 @@ const CartDisplay = ({ close }) => {
       console.error(error);
     }
   };
+
   const increaseQuantity = (index) => {
     const newQuantities = [...quantities];
     newQuantities[index] += 1;
     setQuantities(newQuantities);
-    updateQuantity(cartItem[index].itemId._id, newQuantities[index]);
+    const id = cartItem[index].itemId?._id || cartItem[index]._id; // Sử dụng itemId._id hoặc _id của cart item
+    updateQuantity(id, newQuantities[index]);
   };
 
   const decreaseQuantity = (index) => {
     const newQuantities = [...quantities];
+    const id = cartItem[index].itemId?._id || cartItem[index]._id;
     if (newQuantities[index] > 1) {
-      // Giảm số lượng nếu lớn hơn 1
       newQuantities[index] -= 1;
       setQuantities(newQuantities);
-      updateQuantity(cartItem[index].itemId._id, newQuantities[index]);
+      updateQuantity(id, newQuantities[index]);
     } else if (newQuantities[index] === 1) {
-      // Xóa mục nếu số lượng giảm từ 1 xuống 0
-      deleteItem(cartItem[index].itemId._id);
+      deleteItem(id);
     }
   };
 
-  // Xử lý khi checkbox thay đổi
   const handleCheckboxChange = (index) => {
     const newSelectedItems = [...selectedItems];
     newSelectedItems[index] = !newSelectedItems[index];
     setSelectedItems(newSelectedItems);
   };
 
-  // Tính tổng giá của các mục được chọn
   const totalPrice = cartItem.reduce((sum, item, index) => {
-    return selectedItems[index]
-      ? sum + item.itemId.totalPrice * item.quantity
-      : sum;
+    const price = item.itemId ? item.itemId.totalPrice : item.totalPrice || 0;
+    return selectedItems[index] ? sum + price * item.quantity : sum;
   }, 0);
 
   const toggleSelectedAll = () => {
     const allSelected = selectedItems.every(Boolean);
     setSelectedItems(selectedItems.map(() => !allSelected));
+  };
+
+  const redirectToCheckout = () => {
+    const selectedCartItems = cartItem.filter((_, index) => selectedItems[index]);
+    if (selectedCartItems.length === 0) {
+      toast.error("Vui lòng chọn ít nhất một sản phẩm để thanh toán!");
+      return;
+    }
+
+    navigate("/checkout", {
+      state: { selectedItems: selectedCartItems, totalPrice },
+    });
+    if (close) {
+      close();
+    }
   };
 
   return (
@@ -153,65 +155,72 @@ const CartDisplay = ({ close }) => {
                   </label>
                 </div>
                 <div className="rounded-xl grid gap-2.5 overflow-auto max-h-[calc(100%-200px)] ">
-                  {cartItem.map((item, index) => (
-                    <div
-                      key={item._id}
-                      className="flex border border-gray-200 items-center gap-2 p-2 bg-slate-50 rounded-lg"
-                    >
-                      <div>
-                        <input
-                          type="checkbox"
-                          className="w-5 h-5"
-                          checked={selectedItems[index] || false}
-                          onChange={() => handleCheckboxChange(index)}
-                        />
-                      </div>
-                      <div className="w-30 h-30 p-1 rounded flex-shrink-0">
-                        <img
-                          src={item.itemId.designImage}
-                          alt={item.itemId.productName}
-                          className={`w-full h-full rounded-md border border-gray-200 object-scale-down`}
-                          style={{ backgroundColor: item.itemId.colorCode }}
-                        />
-                      </div>
-                      <div className="flex-1 ml-2">
-                        <p className="text-xl">
-                          {item.itemId.productName} in hình{" "}
-                          {item.itemId.designName}
-                        </p>
-                        <p className="font-semibold text-sky-900">
-                          {item.itemId.totalPrice.toLocaleString()} VND
-                        </p>
-                      </div>
-                      <div>
-                        <div className="flex items-center bg-white rounded">
-                          <button
-                            onClick={() => decreaseQuantity(index)}
-                            className="px-2 text-black text-xl w-6 h-8 bg-slate-100"
-                          >
-                            -
-                          </button>
+                  {cartItem.map((item, index) => {
+                    const isDesignItem = !!item.itemId;
+                    const itemData = isDesignItem ? item.itemId : item;
+                    return (
+                      <div
+                        key={item._id}
+                        className="flex border border-gray-200 items-center gap-2 p-2 bg-slate-50 rounded-lg"
+                      >
+                        <div>
                           <input
-                            type="text"
-                            value={quantities[index] || item.quantity}
-                            readOnly
-                            className="mx-2 w-8 text-center rounded-2xl text-black"
+                            type="checkbox"
+                            className="w-5 h-5"
+                            checked={selectedItems[index] || false}
+                            onChange={() => handleCheckboxChange(index)}
                           />
-                          <button
-                            onClick={() => increaseQuantity(index)}
-                            className="px-2 w-6 h-8 text-black bg-slate-100"
-                          >
-                            +
-                          </button>
+                        </div>
+                        <div className="w-30 h-30 p-1 rounded flex-shrink-0">
+                          <img
+                            src={isDesignItem ? itemData.designImage : itemData.productImage}
+                            alt={itemData.productName}
+                            className="w-full h-full rounded-md border border-gray-200 object-scale-down"
+                            style={{ backgroundColor: itemData.colorCode }}
+                          />
+                        </div>
+                        <div className="flex-1 ml-2">
+                          <p className="text-xl">
+                            {itemData.productName}{" "}
+                            {isDesignItem && itemData.designName
+                              ? `in hình ${itemData.designName}`
+                              : ""}
+                          </p>
+                          <p className="font-semibold text-sky-900">
+                            {itemData.totalPrice.toLocaleString()} VND
+                          </p>
+                        </div>
+                        <div>
+                          <div className="flex items-center bg-white rounded">
+                            <button
+                              onClick={() => decreaseQuantity(index)}
+                              className="px-2 text-black text-xl w-6 h-8 bg-slate-100"
+                            >
+                              -
+                            </button>
+                            <input
+                              type="text"
+                              value={quantities[index] || item.quantity}
+                              readOnly
+                              className="mx-2 w-8 text-center rounded-2xl text-black"
+                            />
+                            <button
+                              onClick={() => increaseQuantity(index)}
+                              className="px-2 w-6 h-8 text-black bg-slate-100"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                        <div
+                          onClick={() => deleteItem(isDesignItem ? itemData._id : item._id)}
+                          className="text-gray-300 hover:text-red-300 w-5 flex items-center justify-center"
+                        >
+                          <HiTrash />
                         </div>
                       </div>
-                      <div 
-                      onClick={()=>deleteItem(item.itemId._id)}
-                      className=" text-gray-300 hover:text-red-300 w-5 flex items-center justify-center">
-                        <HiTrash />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               <div className="p-2 m-2">
@@ -227,15 +236,6 @@ const CartDisplay = ({ close }) => {
                     <p>Tổng tiền hàng</p>
                     <p>{totalPrice.toLocaleString()} VND</p>
                   </div>
-                  {/* <div className="flex justify-between px-6">
-                    <p>Phí vận chuyển</p>
-                    <div className="flex gap-1 items-center">
-                      <p className="text-xs text-gray-700">
-                        30.000 VND
-                      </p>
-                      <p className="text-green-700">Free</p>
-                    </div>
-                  </div> */}
                   <Devider />
                   <div className="flex justify-between px-6">
                     <p className="font-semibold">Tổng thanh toán</p>
@@ -263,7 +263,6 @@ const CartDisplay = ({ close }) => {
               {totalPrice.toLocaleString()} VND
               <div className="flex justify-between items-center gap-1">
                 <p>Thanh toán</p>
-
                 <div>
                   <FaCaretRight />
                 </div>

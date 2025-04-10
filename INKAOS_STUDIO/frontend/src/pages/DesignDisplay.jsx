@@ -7,7 +7,7 @@ import AxiosToastError from "../utils/AxiosToastError";
 
 const DesignDisplay = () => {
   const { id } = useParams(); // Lấy id từ URL
-  
+  console.log(id)
   const designId = id?.split("-")?.slice(-1)[0] || null; // Tách designId
   const [data, setData] = useState({
     name: "",
@@ -16,7 +16,7 @@ const DesignDisplay = () => {
    
   });
 
-//   console.log(designId)
+  console.log(designId)
   const [loading, setLoading] = useState(true); // Khởi tạo loading = true
   const [quantity, setQuantity] = useState(1);
   const imageContainer = useRef();

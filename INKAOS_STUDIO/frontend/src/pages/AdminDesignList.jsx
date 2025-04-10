@@ -93,7 +93,7 @@ const AdminDesignList = () => {
             <div className="min-h-[65vh]">
               <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {designData.map((design) => (
-                  <AdminCardDesign key={design._id} data={design} />
+                  <AdminCardDesign key={design._id} data={design} fetchData={fetchDesign} />
                 ))}
               </div>
             </div>

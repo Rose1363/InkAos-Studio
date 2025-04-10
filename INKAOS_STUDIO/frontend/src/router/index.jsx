@@ -10,7 +10,7 @@ import OtpVerification from "../pages/OtpVerification";
 import ResetPassword from "../pages/ResetPassword";
 import Dashboard from "../layouts/Dashboard";
 import Profile from "../pages/Profile";
-import MyOrder from "../pages/MyOrder";
+import MyOrder from "../pages/OrderList";
 import Address from "../pages/AddressList";
 import ProductDisplay from "../pages/ProductDisplay";
 import Checkout from "../pages/Checkout";
@@ -27,6 +27,9 @@ import DesignDisplay from "../pages/DesignDisplay";
 import ItemDisplay from "../pages/ItemDisplay";
 import DesignProductDisplay from "../pages/DesignProductDisplay";
 import UserDesign from "../pages/UserDesign";
+import Success from "../pages/Success";
+import Cancel from "../pages/Cancel";
+import UserOrder from "../pages/UserOrder";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -71,6 +74,10 @@ const router = createBrowserRouter([
           },
           {
             path: "my-orders",
+            element: <UserOrder />,
+          },
+          {
+            path: "order-list",
             element: <MyOrder />,
           },
           {
@@ -138,7 +145,14 @@ const router = createBrowserRouter([
         path: "checkout",
         element: <Checkout />,
       },
-
+      {
+        path: "success",
+        element: <Success />,
+      },
+      {
+        path: "cancel",
+        element: <Cancel />,
+      },
     ],
   },
 ]);

@@ -19,8 +19,12 @@ import AddToCartButton from "../components/UI/AddToCartButton";
 
 const DesignProductDisplay = () => {
   const { id } = useParams();
+
   const navigate = useNavigate();
-  const designId = id?.split("-")?.slice(-1)[0] || null;
+
+  const parts = id?.split("-") || [];
+  const designId = parts.length > 0 ? parts[parts.length - 1] : null; // "67eacbf4fa8cc03ecd789a2f"
+  // console.log(parts);
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [imageIndex, setImageIndex] = useState(0);
@@ -49,11 +53,15 @@ const DesignProductDisplay = () => {
       if (response.data.success && response.data.data) {
         setDesignData({
           name: response.data.data.name || "Thiết kế không tên",
-          thumbnail: response.data.data.thumbnail || "https://via.placeholder.com/400",
+          thumbnail:
+            response.data.data.thumbnail || "https://via.placeholder.com/400",
           basePrice: response.data.data.basePrice || 0,
           elements: response.data.data.elements || [],
           _id: response.data.data._id,
-          isPublic: response.data.data.isPublic !== undefined ? response.data.data.isPublic : true,
+          isPublic:
+            response.data.data.isPublic !== undefined
+              ? response.data.data.isPublic
+              : true,
         });
       }
     } catch (err) {
@@ -72,10 +80,18 @@ const DesignProductDisplay = () => {
         ...SummaryApi.getProductByCategory,
         data: { id: category },
       });
+     
       if (response.data.success) {
-        setProducts(response.data.data || []);
-      } else {
-        toast("Không tìm thấy sản phẩm trong danh mục này.");
+        const fetchedProducts = response.data.data || [];
+        setProducts(fetchedProducts);
+        if (fetchedProducts.length === 0) {
+          setError("Không có sản phẩm nào trong danh mục này.");
+        } else {
+          const product =  fetchedProducts[0];
+       
+          setSelectedProduct(product);
+          
+        }
       }
     } catch (error) {
       AxiosToastError(error);
@@ -83,7 +99,6 @@ const DesignProductDisplay = () => {
       setLoading(false);
     }
   }, [category]);
-
 
   const handleProductSelect = useCallback((product) => {
     setSelectedProduct(product);
@@ -108,11 +123,16 @@ const DesignProductDisplay = () => {
       handleProductSelect(products[0]);
     }
   }, [products, selectedProduct, handleProductSelect]);
-
-  const handleCustomize = () => {
-    // console.log("designToEdit", designData);
-    navigate("/design", { state: { designToEdit: designData } });
-  };
+const handleCustomize = () => {
+  navigate("/design", { 
+    state: { 
+      designToEdit: designData,
+      categoryId: category, // Truyền categoryId
+      productId: selectedProduct?._id, // Truyền productId nếu có
+      colorCode: selectedVariant?.colorCode || "#000000" // Truyền colorCode mặc định
+    } 
+  });
+};
 
   if (loading) {
     return (
@@ -153,7 +173,10 @@ const DesignProductDisplay = () => {
               selectedSize={selectedSize}
             />
             <div className="grid gap-2 mb-6">
-              <label htmlFor="productCategory" className="text-sm font-medium text-gray-700">
+              <label
+                htmlFor="productCategory"
+                className="text-sm font-medium text-gray-700"
+              >
                 Chọn danh mục
               </label>
               <select
@@ -169,7 +192,10 @@ const DesignProductDisplay = () => {
                   </option>
                 ))}
               </select>
-              <ProductWiseCatgory products={products} onProductSelect={handleProductSelect} />
+              <ProductWiseCatgory
+                products={products}
+                onProductSelect={handleProductSelect}
+              />
             </div>
             <VariantSelector
               selectedProduct={selectedProduct}
@@ -191,17 +217,26 @@ const DesignProductDisplay = () => {
             />
           </div>
           <div className="flex gap-4">
-           
-            <AddToCartButton quantity={quantity} designData={designData} selectedProduct={selectedProduct} selectedVariant={selectedVariant} selectedSize={selectedSize}/>
+            <AddToCartButton
+              quantity={quantity}
+              designData={designData}
+              selectedProduct={selectedProduct}
+              selectedVariant={selectedVariant}
+              selectedSize={selectedSize}
+            />
             <button
               onClick={handleCustomize}
               disabled={
                 !selectedProduct ||
-                selectedProduct.variants.every((v) => v.sizes.every((s) => s.stock === 0))
+                selectedProduct.variants.every((v) =>
+                  v.sizes.every((s) => s.stock === 0)
+                )
               }
               className={`flex-1 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
                 !selectedProduct ||
-                selectedProduct.variants.every((v) => v.sizes.every((s) => s.stock === 0))
+                selectedProduct.variants.every((v) =>
+                  v.sizes.every((s) => s.stock === 0)
+                )
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}

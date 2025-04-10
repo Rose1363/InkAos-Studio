@@ -36,7 +36,7 @@ const Home = () => {
 
   return (
     <section className="bg-[#1e293b] min-h-screen">
-
+<Banner/>
      
       {/* Category Buttons */}
       <div className=" py-6">
@@ -92,11 +92,11 @@ const Home = () => {
  
 </div>
 
-<div>
+{/* <div>
 <ProductList/>
-</div>
+</div> */}
       {/* Product Section */}
-      <div className="container mx-auto py-6">
+      {/* <div className="container mx-auto py-6">
         {categoryData.map((category) => (
           <CategoryWiseProductDisplay
             key={`${category?._id}-CategoryWiseProduct`}
@@ -104,7 +104,7 @@ const Home = () => {
             name={category.name}
           />
         ))}
-      </div>
+      </div> */}
     </section>
   );
 };

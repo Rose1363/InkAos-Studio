@@ -1,314 +1,222 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
-import Devider from "../components/UI/Devider";
-import AxiosToastError from "../utils/AxiosToastError";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Axios from "../utils/Axios";
 import SummaryApi from "../common/SummaryApi";
+import VariantSelector from "../components/UI/VariantSelector";
+import SizeSelector from "../components/UI/SizeSelector";
+import QuantitySelector from "../components/UI/QuantitySelector";
+import PriceDisplay from "../components/UI/PriceDisplay";
+import Loading from "../components/UI/Loading";
+import Devider from "../components/UI/Devider";
+import { FaAngleLeft, FaAngleRight, FaPalette } from "react-icons/fa";
+import AxiosToastError from "../utils/AxiosToastError";
+import AddToCartButton from "../components/UI/AddToCartButton";
 
 const ProductDisplay = () => {
-  const param = useParams();
-  const productId = param?.id?.split("-")?.slice(-1)[0] || null;
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const user = useSelector((state) => state.user);
+  const allCategory = useSelector((state) => state.product.allCategory); // Lấy allCategory từ Redux
 
-  const [data, setData] = useState({
-    name: "",
-    image: [],
-    variants: [],
-  });
-  const [loading, setLoading] = useState(false);
-  const [image, setImage] = useState(0);
-  const [quantity, setQuantity] = useState(1);
+  const productId = id?.split("-")?.slice(-1)[0] || null;
+
+  const [product, setProduct] = useState(null);
+  const [imageIndex, setImageIndex] = useState(0);
   const [selectedVariant, setSelectedVariant] = useState(null);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [designData, setDesignData] = useState(null);
 
-  const imageContainer = useRef();
-
-  const fetchProductDetail = async () => {
-    if (!productId) return;
+  const fetchProductDetail = useCallback(async () => {
+    if (!productId) {
+      setError("Không có productId được cung cấp.");
+      return;
+    }
     try {
       setLoading(true);
       const response = await Axios({
         ...SummaryApi.getProductDetail,
         data: { productId },
       });
-      if (response.data.success) {
-        setData(response.data.data);
-        // setSelectedVariant(response.data.data.variants[0]);
+      if (response.data.success && response.data.data) {
+        const fetchedProduct = response.data.data;
+        setProduct({
+          _id: fetchedProduct._id,
+          name: fetchedProduct.name || "Sản phẩm không tên",
+          image: fetchedProduct.image || [],
+          variants: fetchedProduct.variants || [],
+          basePrice: fetchedProduct.basePrice || 0,
+          categoryId: fetchedProduct.categoryId, // Lưu categoryId nếu có
+        });
+        if (fetchedProduct.variants && fetchedProduct.variants.length > 0) {
+          setSelectedVariant(fetchedProduct.variants[0]);
+        }
+      } else {
+        setError(response.data.message || "Dữ liệu sản phẩm không hợp lệ.");
       }
-    } catch (error) {
-      AxiosToastError(error);
+    } catch (err) {
+      console.error("Fetch Product Error:", err);
+      AxiosToastError(err);
+      setError("Không thể tải thông tin sản phẩm. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId]);
 
   useEffect(() => {
     fetchProductDetail();
-  }, [productId]);
+  }, [fetchProductDetail]);
 
-  const handleScrollLeft = () => {
-    imageContainer.current.scrollLeft -= 150;
+  const handleCustomize = () => {
+    const defaultCategoryId = allCategory[0]?._id || null; // Lấy categoryId mặc định từ Redux
+    navigate("/design", { 
+      state: { 
+        productId: product._id,
+        categoryId: product.categoryId || defaultCategoryId, // Ưu tiên categoryId từ product, nếu không thì từ Redux
+        colorCode: selectedVariant?.colorCode || "#000000",
+        designToEdit: designData
+      } 
+    });
   };
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 flex justify-center">
+        <Loading size="large" />
+      </div>
+    );
+  }
 
-  const handleScrollRight = () => {
-    imageContainer.current.scrollLeft += 150;
-  };
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 text-red-600 text-center">
+        {error}
+      </div>
+    );
+  }
 
-  const increaseQuantity = () => setQuantity((prev) => prev + 1);
-  const decreaseQuantity = () =>
-    quantity > 1 && setQuantity((prev) => prev - 1);
+  if (!product) {
+    return (
+      <div className="container mx-auto py-8 text-gray-600 text-center">
+        Không tìm thấy sản phẩm.
+      </div>
+    );
+  }
+  const handleScrollLeft = () => imageContainer.current.scrollLeft -= 150;
+  const handleScrollRight = () => imageContainer.current.scrollLeft += 150;
 
-  // Tính tổng tồn kho của variant được chọn
-  const totalStockByVariant =
-    selectedVariant?.sizes.reduce((total, size) => total + size.stock, 0) || 0;
-
-  // Tính tồn kho của kích cỡ được chọn
-  const stockBySize =
-    selectedVariant?.sizes.find((size) => size.name === selectedSize)?.stock ||
-    0;
-
-  const totalAllVariantsStock = data.variants.reduce(
-    (total, variant) =>
-      total + variant.sizes.reduce((sum, size) => sum + size.stock, 0),
-    0
-  );
-  const priceBySize =
-    selectedVariant?.sizes.find((size) => size.name === selectedSize)?.price ||
-    0;
-  const finalPrice = data.basePrice + priceBySize;
   return (
     <section className="container mx-auto py-8 px-4 lg:px-0">
-      {/* Phần hiển thị sản phẩm */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 bg-white rounded-2xl shadow-lg overflow-hidden">
-        {/* Bên trái: Ảnh sản phẩm */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl shadow-lg overflow-hidden">
+        {/* Phần hình ảnh sản phẩm */}
         <div className="p-6 bg-gray-50">
-          {/* Ảnh chính */}
-          <div className="relative w-full h-[50vh] lg:h-[60vh] bg-white rounded-xl overflow-hidden shadow-md">
-            {loading ? (
-              <div className="w-full h-full flex items-center justify-center">
-                <p className="text-gray-500">Đang tải...</p>
-              </div>
-            ) : (
-              <img
-                src={data.image[image]}
-                alt={data.name}
-                className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
-              />
-            )}
-          </div>
+             <div className="relative w-full rounded-2xl overflow-hidden shadow-lg transition-all duration-300">
+               <div className="relative w-full h-full flex items-center bg-[#f5f5f5] justify-center">
+              
+               <img src={product.image} alt="" className="object-cover" />
 
-          {/* Dots điều hướng */}
-          <div className="flex items-center justify-center gap-2 my-4">
-            {data.image.map((_, index) => (
-              <div
-                key={index}
-                onClick={() => setImage(index)}
-                className={`cursor-pointer w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === image ? "bg-blue-400 scale-125" : "bg-gray-300"
-                }`}
-              />
-            ))}
-          </div>
+              
+               
+               </div>
+             </div>
+             <div className="flex items-center justify-center gap-2 my-4">
+               
+             </div>
+             <div className="relative flex items-center">
+               <button
+                 onClick={handleScrollLeft}
+                 className="absolute left-0 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-200 hover:scale-110"
+               >
+                 <FaAngleLeft className="text-gray-700" />
+               </button>
+              
+               <button
+                 onClick={handleScrollRight}
+                 className="absolute right-0 z-10 p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-all duration-200 hover:scale-110"
+               >
+                 <FaAngleRight className="text-gray-700" />
+               </button>
+             </div>
+           </div>
 
-          {/* Thumbnail slider */}
-          <div className="relative flex items-center">
-            <button
-              onClick={handleScrollLeft}
-              className="absolute left-0 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            >
-              <FaAngleLeft className="text-gray-600" />
-            </button>
-            <div
-              ref={imageContainer}
-              className="mx-7 flex gap-3 py-2 overflow-x-auto scroll-smooth w-full scrollbar-hide"
-            >
-              {data.image.map((img, index) => (
-                <div
-                  key={index}
-                  onClick={() => setImage(index)}
-                  className={`w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden cursor-pointer border-2 ${
-                    index === image ? "border-blue-200" : "border-transparent"
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt={`Thumbnail ${index}`}
-                    className="w-full h-full object-cover transition-opacity duration-300 hover:opacity-80"
-                  />
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={handleScrollRight}
-              className="absolute right-0 z-10 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
-            >
-              <FaAngleRight className="text-gray-600" />
-            </button>
-          </div>
-        </div>
-
-        {/* Bên phải: Thông tin sản phẩm */}
-        <div className="p-6 bg-gray-50 flex flex-col gap-32">
+        {/* Phần thông tin sản phẩm */}
+        <div className="p-8 bg-white flex flex-col justify-between">
           <div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-4">
-              {data.name}
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-6 tracking-tight">
+              {product.name}
             </h2>
-            <Devider className="my-4" />
+            <Devider className="my-6 border-gray-200" />
 
-            {/* Giá */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-1">Giá</p>
-              <div className="inline-block px-4 py-2 bg-green-100 text-green-800 font-semibold rounded-lg shadow">
-                {finalPrice.toLocaleString("vi-VN")} VNĐ
-              </div>
-            </div>
-            {/* Màu sắc */}
+            {/* Hiển thị giá */}
+            <PriceDisplay
+              selectedProduct={product}
+              designData={designData} // null trong trường hợp này
+              selectedVariant={selectedVariant}
+              selectedSize={selectedSize}
+            />
 
-            <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-2">Màu sắc</p>
-              <div className="flex gap-4 flex-wrap">
-                {data.variants.map((variant) => {
-                  const variantTotalStock = variant.sizes.reduce(
-                    (total, size) => total + size.stock,
-                    0
-                  );
-                  const isSelected = selectedVariant?._id === variant._id;
+            {/* Chọn biến thể (màu sắc) */}
+            <VariantSelector
+              selectedProduct={product}
+              selectedVariant={selectedVariant}
+              setSelectedVariant={setSelectedVariant}
+              setSelectedSize={setSelectedSize}
+            />
 
-                  return (
-                    <button
-                      key={variant._id}
-                      onClick={() => {
-                        if (isSelected) {
-                          setSelectedVariant(null);
-                          setSelectedColor(null);
-                          setSelectedSize(null);
-                        } else {
-                          setSelectedVariant(variant);
-                        }
-                      }}
-                      className={`w-10 h-10 rounded-full border-2 transition-transform duration-300 ${
-                        isSelected
-                          ? "border-blue-500 scale-110"
-                          : "border-gray-300"
-                      }`}
-                      style={{ backgroundColor: variant.colorCode }}
-                      title={`${variant.color} - Còn ${variantTotalStock} sản phẩm`}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-            {/* Kích cỡ */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-2">Kích cỡ</p>
-              <div className="flex gap-2">
-                {["S", "M", "L", "XL"].map((size) => {
-                  const isAvailable = selectedVariant?.sizes.some(
-                    (variantSize) =>
-                      variantSize.name === size && variantSize.stock > 0
-                  );
-                  const isSelected = selectedSize === size;
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => {
-                        if (!isAvailable) return;
-                        if (isSelected) {
-                          setSelectedSize(null);
-                        } else {
-                          setSelectedSize(size);
-                        }
-                      }}
-                      className={`w-12 h-10 rounded-lg border transition-colors
-                    ${
-                      isAvailable
-                        ? isSelected
-                          ? "border-blue-500 scale-110 text-gray-500 hover:bg-gray-100"
-                          : "border-gray-300 text-gray-700 hover:bg-gray-100"
-                        : "bg-gray-300 border-gray-300 text-gray-400"
-                    }
-                    `}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            {/* Chọn kích thước */}
+            <SizeSelector
+              selectedVariant={selectedVariant}
+              selectedSize={selectedSize}
+              setSelectedSize={setSelectedSize}
+            />
 
-            {/* Số lượng */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600 mb-2">Số lượng</p>
-
-              <div className="flex gap-5 items-center">
-                <div className="flex items-center gap-2 bg-white rounded-lg border border-gray-300 w-fit">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="px-3.5 pb-1 text-2xl text-gray-700 hover:bg-gray-100 border-r border-gray-300"
-                  >
-                    -
-                  </button>
-                  <input
-                    type="text"
-                    value={quantity}
-                    readOnly
-                    className="w-12 text-center text-gray-700 border-0 focus:ring-0"
-                  />
-                  <button
-                    onClick={increaseQuantity}
-                    className="px-3 pb-1 text-xl text-gray-700 hover:bg-gray-100 border-l border-gray-300"
-                  >
-                    +
-                  </button>
-                </div>
-
-                <div className="flex flex-col text-sm text-green-600">
-                  {selectedSize && stockBySize > 0 ? (
-                    <p>{stockBySize} sản phẩm có sẵn</p>
-                  ) : selectedVariant ? (
-                    <p>{totalStockByVariant === 0 ? "Hết hàng"
-                      : `${totalStockByVariant} sản phẩm có sẵn`}</p>
-                  ) : (
-                    <p>
-                      {totalAllVariantsStock === 0
-                        ? "Hết hàng"
-                        : `${totalAllVariantsStock} sản phẩm có sẵn`}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
+            {/* Chọn số lượng */}
+            <QuantitySelector
+              selectedProduct={product}
+              selectedVariant={selectedVariant}
+              selectedSize={selectedSize}
+              quantity={quantity}
+              setQuantity={setQuantity}
+            />
           </div>
 
           {/* Nút hành động */}
-          <div className="flex gap-2">
+          <div className="flex gap-4">
+            <AddToCartButton
+              quantity={quantity}
+              designData={designData} // null trong trường hợp này
+              selectedProduct={product}
+              selectedVariant={selectedVariant}
+              selectedSize={selectedSize}
+            />
             <button
-              disabled={totalAllVariantsStock === 0}
-              className={`disabled:cursor-not-allowed flex-1 py-3 rounded-lg transition-colors ${
-                totalAllVariantsStock === 0
-                  ? "bg-gray-200 text-gray-400"
-                  : "bg-red-600 text-white hover:bg-red-700"
+              onClick={handleCustomize}
+              disabled={
+                !product ||
+                product.variants.every((v) =>
+                  v.sizes.every((s) => s.stock === 0)
+                )
+              }
+              className={`flex-1 py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 ${
+                !product ||
+                product.variants.every((v) =>
+                  v.sizes.every((s) => s.stock === 0)
+                )
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
-              Thêm vào giỏ hàng
-            </button>
-
-            <button
-              disabled={totalAllVariantsStock === 0}
-              className={`disabled:cursor-not-allowed flex-1 py-3 rounded-lg transition-colors ${
-                totalAllVariantsStock === 0
-                  ? "bg-gray-200 text-gray-400"
-                  : "bg-blue-500 text-white hover:bg-blue-700"
-              }`}
-            >
-              Thiết kế
+              <FaPalette /> Tùy chỉnh
             </button>
           </div>
         </div>
       </div>
 
+      {/* Phần chi tiết sản phẩm */}
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white rounded-2xl shadow-lg p-12">
-        <div className="">
+        <div>
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             Chi tiết về áo thun
           </h1>
@@ -317,8 +225,8 @@ const ProductDisplay = () => {
           </h2>
           <p className="text-gray-600 leading-relaxed">
             Thoải mái, đơn giản và dễ dàng phối hợp với nhiều phong cách. Được
-            làm từ 100% cotton, form áo unisex phù hợp với cả nam va nữ. Đường
-            may đôi chắc chắn và tăng tính thẩm mỹ
+            làm từ 100% cotton, form áo unisex phù hợp với cả nam và nữ. Đường
+            may đôi chắc chắn và tăng tính thẩm mỹ.
           </p>
 
           <div className="mt-6">
@@ -348,7 +256,7 @@ const ProductDisplay = () => {
           </div>
         </div>
 
-        <div className="">
+        <div>
           <h1 className="text-2xl font-bold text-gray-800 mb-4">
             Chi tiết về thiết kế
           </h1>
@@ -356,13 +264,13 @@ const ProductDisplay = () => {
             Cảm hứng thiết kế
           </h2>
           <p className="text-gray-600 leading-relaxed">
-            Lảm hứng từ con vật được nhiều người yêu thích - Capypara, thiết kế
-            mang phong cách đơn giản nhưng không kém phần dễ thương, ngộ nghĩnh
+            Lấy cảm hứng từ con vật được nhiều người yêu thích - Capybara, thiết kế
+            mang phong cách đơn giản nhưng không kém phần dễ thương, ngộ nghĩnh.
           </p>
 
           <div className="mt-6">
             <h2 className="text-lg font-bold text-gray-800 mb-2">
-              Kĩ thuật in (In kỹ thuật số)
+              Kỹ thuật in (In kỹ thuật số)
             </h2>
             <ul className="list-disc list-inside text-gray-600">
               <li>

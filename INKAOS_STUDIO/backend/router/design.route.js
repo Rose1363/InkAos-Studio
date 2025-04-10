@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addDesign,
+  deleteDesign,
   getDesign,
   getDesignByStyle,
   getDesignDetail,
@@ -18,4 +19,5 @@ designRouter.post("/get-design-by-style", getDesignByStyle);
 designRouter.post("/get-public-design", getPublicDesigns);
 designRouter.post("/get-design-detail", getDesignDetail);
 designRouter.put("/update", updateDesign);
+designRouter.delete('/delete', auth, admin, deleteDesign)
 export default designRouter;

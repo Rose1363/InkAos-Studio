@@ -7,22 +7,26 @@ import AxiosToastError from "../../utils/AxiosToastError";
 import { confirmBox } from "../../utils/ShowAlert";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
+import toast from "react-hot-toast"; // Thêm import toast
 
 const AdminCardDesign = ({ data, fetchData }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  const handleDeleteProduct = async () => {
+  const handleDeleteDesign = async () => {
     try {
       setLoading(true);
       const response = await Axios({
-        ...SummaryApi.deleteProduct,
-        data: { _id: data._id },
+        ...SummaryApi.deleteDesign,
+        data: { designId: data._id }, // Gửi designId thay vì _id trực tiếp
       });
 
       if (response.data.success) {
-        fetchData();
+        toast.success("Xóa thiết kế thành công!"); // Thông báo thành công
+        fetchData(); // Cập nhật danh sách
+      } else {
+        toast.error(response.data.message || "Không thể xóa thiết kế!");
       }
     } catch (error) {
       AxiosToastError(error);
@@ -33,9 +37,8 @@ const AdminCardDesign = ({ data, fetchData }) => {
 
   const confirmDelete = () => {
     confirmBox(
-      "Bạn có chắc muốn xóa thiết kế này?",
-      "Hành động này không thể hoàn tác",
-      handleDeleteProduct
+     
+      handleDeleteDesign
     );
   };
 
@@ -51,7 +54,14 @@ const AdminCardDesign = ({ data, fetchData }) => {
           src={data?.thumbnail}
           alt={data.name}
           className="w-full h-full object-cover transition-opacity duration-300"
+          onLoad={() => setImageLoaded(true)}
+          onError={() => setImageLoaded(false)}
         />
+        {!imageLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Loading size={8} color="#9CA3AF" />
+          </div>
+        )}
       </div>
 
       {/* Content Container */}
@@ -73,11 +83,11 @@ const AdminCardDesign = ({ data, fetchData }) => {
           >
             {data?.isPublic ? (
               <span className="flex items-center">
-                <FiEye />
+                <FiEye/>
               </span>
             ) : (
               <span className="flex items-center">
-                <FiEyeOff  />
+                <FiEyeOff />
               </span>
             )}
           </span>
@@ -95,7 +105,7 @@ const AdminCardDesign = ({ data, fetchData }) => {
             disabled={loading}
             className={`flex items-center justify-center p-2 rounded-lg ${
               loading
-                ? "bg-gray-100 text-gray-400"
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : "text-red-500 hover:bg-red-50 hover:text-red-700"
             } transition-colors duration-200`}
             title="Xóa thiết kế"

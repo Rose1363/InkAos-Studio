@@ -4,13 +4,16 @@ import addressReducer from './addressSlice.js'
 import productReducer from './productSlice.js'
 import designReducer from './designSlice.js'
 import cartReducer from './cartSlice.js'
+
+import orderReducer from './orderSlice.js'
 export const store = configureStore({
   reducer: {
     user : userReducer,
     product : productReducer,
     design : designReducer,
     addresses : addressReducer,
-    cartItem  : cartReducer
+    cartItem  : cartReducer,
+    orders: orderReducer
   },
 })
 

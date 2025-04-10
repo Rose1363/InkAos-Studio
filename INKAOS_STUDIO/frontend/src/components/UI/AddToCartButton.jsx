@@ -16,41 +16,41 @@ const AddToCartButton = ({
   quantity,
 }) => {
   const user = useSelector((state) => state.user);
-  const [loading, setLoading] = useState(false); // Sửa giá trị ban đầu thành false
+  const [loading, setLoading] = useState(false);
   const { fetchCartItem } = useGlobalContext();
+
   const handleAddToCart = async () => {
-    // Kiểm tra người dùng đã đăng nhập chưa
     if (!user?._id) {
       toast.error("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng!");
-      //   navigate("/login");
       return;
     }
 
-    // Kiểm tra các giá trị cần thiết
     if (!selectedProduct || !selectedVariant || !selectedSize) {
       toast.error("Vui lòng chọn đầy đủ sản phẩm, biến thể và kích thước!");
       return;
     }
 
-    // Tạo dữ liệu gửi đi
+    // Tìm giá của kích thước được chọn
+    const sizePrice = selectedVariant.sizes.find((s) => s.name === selectedSize)?.price || 0;
+
     const cartData = {
       userId: user._id,
       productId: selectedProduct._id,
-      designId: designData._id,
+      designId: designData?._id || null, // Đảm bảo designId là null nếu không có
       variantId: selectedVariant._id,
-      size: selectedSize, // Lấy size.name thay vì toàn bộ đối tượng selectedSize
+      size: selectedSize,
       quantity: quantity,
       price:
-        (selectedProduct.basePrice || 0) +
-        (selectedVariant.sizes[0].price || 0) +
-        (designData.basePrice || 0),
+        ((selectedProduct.basePrice || 0) +
+         sizePrice +
+         (designData?.basePrice || 0)) * quantity, // Tổng giá nhân với quantity
     };
 
     try {
       setLoading(true);
       const response = await Axios({
         ...SummaryApi.addToCart,
-        data: cartData, // Gửi trực tiếp các trường, không bọc trong cartItem
+        data: cartData,
       });
 
       if (response.data.success) {
@@ -63,6 +63,7 @@ const AddToCartButton = ({
       setLoading(false);
     }
   };
+
   return (
     <button
       onClick={handleAddToCart}

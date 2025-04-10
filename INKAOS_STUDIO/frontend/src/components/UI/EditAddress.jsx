@@ -8,7 +8,7 @@ import { handleAddAddress } from "../../store/addressSlice";
 import toast from "react-hot-toast";
 import Loading from "./Loading";
 
-const EditAddress = ({ close, data }) => {
+const EditAddress = ({ close, data, fetchAddess }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     name: data?.name || "",
@@ -67,7 +67,9 @@ const EditAddress = ({ close, data }) => {
       if (response.data.success) {
         toast.success("Cập nhật địa chỉ thành công!");
         dispatch(handleAddAddress(response.data.data));
+        fetchAddess()
         close();
+        
       }
     } catch (error) {
       console.error("Submit error:", {

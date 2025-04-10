@@ -4,14 +4,15 @@ import Axios from "../../utils/Axios";
 import SummaryApi from "../../common/SummaryApi";
 import AxiosToastError from "../../utils/AxiosToastError";
 import toast from "react-hot-toast";
-const AddAddress = ({ close, onAddressAdded }) => {
+import { useGlobalContext } from "../../provider/GlobalProvider";
+const AddAddress = ({ close }) => {
   const [formData, setFormData] = useState({
     name: "",
     phoneNumber: "",
     address: "",
     isDefault: false,
   });
-
+  const { fetchAddress } = useGlobalContext();
   const [errors, setErrors] = useState({});
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,13 +40,13 @@ const AddAddress = ({ close, onAddressAdded }) => {
         });
 
         if (response.data.success) {
-          onAddressAdded()
+          fetchAddress();
+          close();
           toast.success(response.data.message);
         }
       } catch (error) {
         AxiosToastError(error);
       }
-      
     }
   };
 

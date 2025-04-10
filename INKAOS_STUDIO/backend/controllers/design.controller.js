@@ -31,7 +31,7 @@ export const addDesign = async (req, res) => {
       basePrice: basePrice >= 0 ? basePrice : 0, // Đảm bảo basePrice không âm
       isPublic: typeof isPublic === "boolean" ? isPublic : false, // Đảm bảo kiểu dữ liệu
       tags: Array.isArray(tags) ? tags : [],
-      thumbnail: thumbnail || undefined, // Dùng giá trị mặc định của schema nếu không có
+      thumbnail: thumbnail || undefined,
       styleDesign: styleDesign || undefined,
     };
 
@@ -57,7 +57,7 @@ export const addDesign = async (req, res) => {
 
 export const getDesign = async (request, response) => {
   try {
-    const userId = request.userId; // Giả sử userId được lấy từ middleware auth
+    const userId = request.userId; 
     let { page = 1, limit = 6, search, styleDesign } = request.body;
 
     // Kiểm tra dữ liệu đầu vào
@@ -339,6 +339,45 @@ export const updateDesign = async (request, response) => {
       message: error.message || "Lỗi server",
       error: true,
       details: error.errors || "Không có chi tiết lỗi",
+    });
+  }
+};
+
+export const deleteDesign = async (request, response) => {
+  try {
+    const { designId } = request.body;
+
+    // Kiểm tra designId
+    if (!designId || !mongoose.Types.ObjectId.isValid(designId)) {
+      return response.status(400).json({
+        success: false,
+        message: "ID thiết kế không hợp lệ",
+        error: true,
+      });
+    }
+
+    // Xóa design
+    const deletedDesign = await DesignModel.findOneAndDelete({ _id: designId });
+
+    // Kiểm tra xem design có tồn tại không
+    if (!deletedDesign) {
+      return response.status(404).json({
+        success: false,
+        message: "Không tìm thấy thiết kế để xóa",
+        error: true,
+      });
+    }
+
+    return response.status(200).json({
+      success: true,
+      message: "Xóa thiết kế thành công",
+      data: deletedDesign,
+    });
+  } catch (error) {
+    return response.status(500).json({
+      success: false,
+      message: error.message || "Lỗi server",
+      error: true,
     });
   }
 };

@@ -86,10 +86,22 @@ const Dashboard = () => {
                     Thêm thiết kế
                   </Link>
                 </div>
+
+                <Devider />
+            <div className="text-lg font-semibold mb-2">Đơn mua</div>
+            <div className="grid text-sm gap-2 mb-4">
+              <Link
+                to={"/dashboard/order-list"}
+                className="text-left px-2 hover:font-bold"
+              >
+                Đơn hàng
+              </Link>
+            </div>
               </>
             )}
 
             {/* Đơn mua */}
+          
             <Devider />
             <div className="text-lg font-semibold mb-2">Đơn mua</div>
             <div className="grid text-sm gap-2 mb-4">
@@ -97,10 +109,9 @@ const Dashboard = () => {
                 to={"/dashboard/my-orders"}
                 className="text-left px-2 hover:font-bold"
               >
-                Đơn hàng
+                Đơn hàng của tôi
               </Link>
             </div>
-
             {/* Đăng xuất */}
             <Devider />
             <div className="grid text-sm gap-2">

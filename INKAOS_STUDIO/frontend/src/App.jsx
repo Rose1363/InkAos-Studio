@@ -82,7 +82,7 @@ function App() {
       <Footer />
       <Toaster
         toastOptions={{
-          duration: 1000, // Thời gian hiển thị (ms)
+          duration: 2000, // Thời gian hiển thị (ms)
           style: {
             zIndex: 100, // Cao hơn modal
           },

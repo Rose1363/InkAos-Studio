@@ -15,6 +15,22 @@ const cartSchema = new mongoose.Schema(
           ref: "Item",
           required: true,
         },
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        variantId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Variant",
+          required: true,
+        },
+        size: { type: String, required: true },
+        designId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Design",
+          default: null,
+        },
         quantity: { type: Number, required: true, min: 1 },
       },
     ],
@@ -24,17 +40,24 @@ const cartSchema = new mongoose.Schema(
   }
 );
 
+// Thêm chỉ mục cho items.itemId
+cartSchema.index({ "items.itemId": 1 });
+
 cartSchema.pre("deleteOne", { document: true, query: false }, async function (next) {
-  const itemIds = this.items.map((item) => item.itemId);
-  await mongoose.model("Cart").updateMany(
-    { "items.itemId": { $in: itemIds } },
-    { $pull: { items: { itemId: { $in: itemIds } } } }
-  );
-  const remainingItems = await mongoose.model("Cart").find({ "items.itemId": { $in: itemIds } });
-  if (remainingItems.length === 0) {
-    await mongoose.model("Item").deleteMany({ _id: { $in: itemIds } });
+  try {
+    const itemIds = this.items.map((item) => item.itemId);
+    const remainingItems = await mongoose.model("Cart").find({
+      _id: { $ne: this._id },
+      "items.itemId": { $in: itemIds },
+    });
+    if (remainingItems.length === 0) {
+      await mongoose.model("Item").deleteMany({ _id: { $in: itemIds } });
+    }
+    next();
+  } catch (error) {
+    console.error("Error in pre-deleteOne middleware:", error);
+    next(error);
   }
-  next();
 });
 
 const CartModel = mongoose.model("Cart", cartSchema);

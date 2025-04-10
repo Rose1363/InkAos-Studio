@@ -94,6 +94,10 @@ const SummaryApi = {
     url: "/api/address/update",
     method: "put",
   },
+  deleteAddress: {
+    url: "/api/address/detele",
+    method: "delete",
+  },
   addText: {
     url: "/api/text/add",
     method: "post",
@@ -123,6 +127,10 @@ const SummaryApi = {
     url: "/api/design/update",
     method: "put",
   },
+  deleteDesign: {
+    url: "/api/design/delete",
+    method: "delete",
+  },
   addToCart: {
     url: "/api/cart/add",
     method: "post",
@@ -143,7 +151,36 @@ const SummaryApi = {
     url: "/api/cart/update-quantity",
     method: "PUT",
   },
+  cashOnDeliveryOrder: {
+    url: "/api/order/cash-on-delivery",
+    method: "post",
+  },
+  getDetailOrder: {
+    url: "/api/order/get",
+    method: "get"
+  },
+  confirmOrderReceived: {
+    url: "/api/order/confirm-received",
+    method: "POST",
+  },
+  cancelOrderByUser: {
+    url: "/api/order/cancel-by-user",
+    method: "POST",
+  },
   
+  updateOrderStatus: {
+    url: "/api/order/update-status",
+    method: "PATCH",
+  },
+  getOrder: {
+    url: "/api/order/get-by-user",
+    method: "post"
+  },
+  vnpayOrder: {
+    url: "/api/order/vnpay",
+    method: "POST",
+  },
+
 };
 
 export default SummaryApi;

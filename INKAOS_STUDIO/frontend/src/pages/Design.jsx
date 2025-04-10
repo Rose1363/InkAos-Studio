@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DesignMenu from "../components/design/Menu/DesignMenu";
 import TextInput from "../components/design/Menu/Inputs/DesignTextInput";
 import ImageInput from "../components/design/Menu/Inputs/ImageUploadInput";
@@ -20,6 +20,7 @@ const Design = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useSelector((state) => state.user);
+  const allCategory = useSelector((state) => state.product.allCategory); // Giả định Redux store có danh sách category
   const [activePanel, setActivePanel] = useState(null);
   const [objects, setObjects] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
@@ -27,16 +28,17 @@ const Design = () => {
   const [designName, setDesignName] = useState("Thiết kế mới");
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isPublicOriginal, setIsPublicOriginal] = useState(false); // Lưu trạng thái isPublic ban đầu
+  const [isPublicOriginal, setIsPublicOriginal] = useState(false);
   const stageRef = useRef(null);
   const canvasContainerRef = useRef(null);
   const designId =
-    location.state?.designToEdit?.designId ||
-    location.state?.designToEdit?._id ||
-    null; // Load dữ liệu từ state khi chỉnh sửa
+    location.state?.designToEdit?.designId || location.state?.designToEdit?._id || null;
+  const productId = location.state?.productId;
+  const categoryId = location.state?.categoryId;
+  const colorCode = location.state?.colorCode || "#000000";
+
   useEffect(() => {
     const designToEdit = location.state?.designToEdit;
-
     if (designToEdit) {
       setDesignName(designToEdit.name);
       setBackground(designToEdit.background || "tshirt");
@@ -56,7 +58,6 @@ const Design = () => {
     }
   }, [location.state]);
 
-  // Xử lý click ngoài canvas
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -181,6 +182,27 @@ const Design = () => {
     return null;
   };
 
+  const uploadThumbnail = async (thumbnailDataUrl) => {
+    if (thumbnailDataUrl && thumbnailDataUrl.startsWith("data:image")) {
+      try {
+        const response = await fetch(thumbnailDataUrl);
+        const blob = await response.blob();
+        const file = new File([blob], "thumbnail.jpg", { type: "image/jpeg" });
+        const uploadResponse = await uploadImage(file);
+        if (uploadResponse.data && uploadResponse.data.success) {
+          return uploadResponse.data.data.url;
+        } else {
+          throw new Error("Failed to upload thumbnail");
+        }
+      } catch (error) {
+        console.error("Lỗi khi upload thumbnail:", error);
+        toast.error("Không thể upload thumbnail!");
+        return null;
+      }
+    }
+    return thumbnailDataUrl;
+  };
+
   const prepareDesignData = () => {
     const thumbnail = generateThumbnail();
     return {
@@ -292,7 +314,7 @@ const Design = () => {
       canvasWidth: 400,
       canvasHeight: 500,
       basePrice: 0,
-      isPublic: IsAdmin(user?.role) ? true : false, // Admin tạo isPublic: true, User tạo isPublic: false
+      isPublic: IsAdmin(user?.role) ? true : false,
       tags: [],
       thumbnail,
     };
@@ -301,59 +323,52 @@ const Design = () => {
   const saveDesignToDatabase = async () => {
     const designData = prepareDesignData();
     setIsSaving(true);
+
     try {
+      if (designData.thumbnail && designData.thumbnail.startsWith("data:image")) {
+        designData.thumbnail = await uploadThumbnail(designData.thumbnail);
+        if (!designData.thumbnail) throw new Error("Thumbnail upload failed");
+      }
       let response;
       const isAdmin = IsAdmin(user?.role);
 
       if (isAdmin) {
-        // Admin: Tạo mới hoặc cập nhật
         if (designData.designId) {
-          response = await Axios({
-            ...SummaryApi.updateDesign,
-            data: designData,
-          });
+          response = await Axios({ ...SummaryApi.updateDesign, data: designData });
         } else {
-          response = await Axios({
-            ...SummaryApi.addDesign,
-            data: designData,
-          });
+          response = await Axios({ ...SummaryApi.addDesign, data: designData });
         }
       } else {
-        // User: Kiểm tra design ban đầu
         if (designData.designId) {
           if (isPublicOriginal) {
-            // Design gốc là public -> Tạo mới cho user
-
-            designData.isPublic = false; // Đảm bảo design mới không public
-            response = await Axios({
-              ...SummaryApi.addDesign,
-              data: designData,
-            });
+            designData.isPublic = false;
+            response = await Axios({ ...SummaryApi.addDesign, data: designData });
           } else {
-            // Design gốc không public -> Cập nhật
-            response = await Axios({
-              ...SummaryApi.updateDesign,
-              data: designData,
-            });
+            response = await Axios({ ...SummaryApi.updateDesign, data: designData });
           }
         } else {
-          // Tạo mới design cho user
-          response = await Axios({
-            ...SummaryApi.addDesign,
-            data: designData,
-          });
+          response = await Axios({ ...SummaryApi.addDesign, data: designData });
         }
       }
 
       if (response.data.success) {
-        toast.success(
-          designData.designId
-            ? "Cập nhật thiết kế thành công!"
-            : "Lưu thiết kế thành công!"
-        );
+        toast.success(designData.designId ? "Cập nhật thiết kế thành công!" : "Lưu thiết kế thành công!");
         const designId = response.data.data._id || designData.designId;
-        navigate(`/design/${validURLConvert(designData.name)}-${designId}`);
-        console.log("designdataafteredit", designData);
+
+        // Lấy category và product mặc định nếu không có
+        const defaultCategoryId = allCategory.length > 0 ? allCategory[0]._id : null;
+        const defaultProduct = await fetchDefaultProduct(defaultCategoryId);
+
+        const finalCategoryId = categoryId || defaultCategoryId;
+        const finalProductId = productId || (defaultProduct ? defaultProduct._id : null);
+        const finalColorCode = colorCode || "#000000";
+
+        if (!finalCategoryId || !finalProductId) {
+          throw new Error("Không tìm thấy danh mục hoặc sản phẩm mặc định!");
+        }
+
+        const url = `/item/${finalCategoryId}-${validURLConvert(designData.name || "unnamed")}-${finalColorCode.replace("#", "%23")}-${designId}-${finalProductId}`;
+        navigate(url);
       } else {
         throw new Error(response.data.message || "Lưu thất bại");
       }
@@ -365,6 +380,24 @@ const Design = () => {
     }
   };
 
+  // Hàm lấy product đầu tiên từ category
+  const fetchDefaultProduct = async (categoryId) => {
+    if (!categoryId) return null;
+    try {
+      const response = await Axios({
+        ...SummaryApi.getProductByCategory,
+        data: { id: categoryId },
+      });
+      if (response.data.success && response.data.data.length > 0) {
+        return response.data.data[0];
+      }
+      return null;
+    } catch (error) {
+      console.error("Lỗi khi lấy sản phẩm mặc định:", error);
+      return null;
+    }
+  };
+
   const finishDesign = () => {
     const designData = prepareDesignData();
     if (IsAdmin(user?.role)) {
@@ -373,7 +406,7 @@ const Design = () => {
       });
     } else {
       toast.success("Thiết kế đã hoàn tất và lưu tạm thời!");
-      navigate("/"); // Chuyển về trang chủ hoặc trang khác tùy ý
+      navigate("/");
     }
   };
 

@@ -15,16 +15,17 @@ import { FaPalette } from "react-icons/fa";
 import AxiosToastError from "../utils/AxiosToastError";
 import toast from "react-hot-toast";
 import AddToCartButton from "../components/UI/AddToCartButton";
+import mongoose from "mongoose";
 
 const ItemDisplay = () => {
   const { item } = useParams();
   const navigate = useNavigate();
 
   const parts = item?.split("-") || [];
-
-  const categoryId = parts[0]; // "67dc08f3a4a6059ecf3fb313"
-  const designId = parts.length > 0 ? parts[parts.length - 1] : null; // "67eacbf4fa8cc03ecd789a2f"
-  const colorCode = parts.length > 2 ? parts[parts.length - 2] : null; // "#ec55bc"
+  const categoryId = parts[0];
+  const designId = parts.length > 0 ? parts[parts.length - 2] : null;
+  const colorCode = parts.length > 2 ? parts[parts.length - 3] : null;
+  const productId = parts.length > 2 ? parts[parts.length - 1] : null;
 
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -53,9 +54,8 @@ const ItemDisplay = () => {
     try {
       const response = await Axios({
         ...SummaryApi.getDesignDetail,
-        data: { designId }, // Nếu API dùng GET, sửa thành params: { designId }
+        data: { designId },
       });
-      console.log("Design API Response:", response.data.data);
       if (response.data.success && response.data.data) {
         setDesignData({
           name: response.data.data.name || "Thiết kế không tên",
@@ -74,20 +74,12 @@ const ItemDisplay = () => {
       }
     } catch (err) {
       console.error("Fetch Design Error:", err);
-      if (err.response) {
-        setError(
-          err.response.data.message || "Lỗi từ server khi tải thiết kế."
-        );
-      } else if (err.request) {
-        setError("Không thể kết nối đến server. Vui lòng kiểm tra mạng.");
-      } else {
-        setError("Có lỗi xảy ra. Vui lòng thử lại.");
-      }
+      setError("Có lỗi xảy ra khi tải thiết kế.");
     }
   }, [designId]);
 
-  const fetchProductsByCategory = useCallback(async () => {
-    if (!category) {
+  const fetchProductsByCategory = useCallback(async (catId) => {
+    if (!catId || !mongoose.Types.ObjectId.isValid(catId)) {
       setProducts([]);
       return;
     }
@@ -95,14 +87,13 @@ const ItemDisplay = () => {
       setLoading(true);
       const response = await Axios({
         ...SummaryApi.getProductByCategory,
-        data: { id: category },
+        data: { id: catId },
       });
       if (response.data.success) {
         const fetchedProducts = response.data.data || [];
         setProducts(fetchedProducts);
-        // Tự động chọn variant khớp với colorCode từ URL
-        if (fetchedProducts.length > 0 && colorCode) {
-          const product = fetchedProducts[0];
+        if (fetchedProducts.length > 0) {
+          const product = fetchedProducts.find((p) => p._id === productId) || fetchedProducts[0];
           const variant =
             product.variants.find((v) => v.colorCode === colorCode) ||
             product.variants[0];
@@ -110,14 +101,14 @@ const ItemDisplay = () => {
           setSelectedVariant(variant);
         }
       } else {
-        toast("Không tìm thấy sản phẩm trong danh mục này.");
+        setProducts([]);
       }
     } catch (error) {
       AxiosToastError(error);
     } finally {
       setLoading(false);
     }
-  }, [category]);
+  }, [productId, colorCode]);
 
   const handleProductSelect = useCallback((product) => {
     setSelectedProduct(product);
@@ -131,11 +122,27 @@ const ItemDisplay = () => {
     const loadData = async () => {
       setLoading(true);
       setError(null);
-      await Promise.all([fetchDesignDetail(), fetchProductsByCategory()]);
+
+      await fetchDesignDetail();
+
+      // Nếu categoryId không hợp lệ, lấy category đầu tiên
+      const validCategoryId = mongoose.Types.ObjectId.isValid(categoryId)
+        ? categoryId
+        : allCategory.length > 0
+        ? allCategory[0]._id
+        : null;
+
+      if (validCategoryId) {
+        setCategory(validCategoryId);
+        await fetchProductsByCategory(validCategoryId);
+      } else {
+        setError("Không tìm thấy danh mục hợp lệ.");
+      }
+
       setLoading(false);
     };
     loadData();
-  }, [fetchDesignDetail, fetchProductsByCategory]);
+  }, [fetchDesignDetail, fetchProductsByCategory, categoryId, allCategory]);
 
   useEffect(() => {
     if (products.length > 0 && !selectedProduct) {
@@ -144,7 +151,14 @@ const ItemDisplay = () => {
   }, [products, selectedProduct, handleProductSelect]);
 
   const handleCustomize = () => {
-    navigate("/design", { state: { designToEdit: designData } });
+    navigate("/design", {
+      state: {
+        colorCode: selectedVariant?.colorCode || colorCode,
+        categoryId: category,
+        productId: selectedProduct?._id || productId,
+        designToEdit: designData,
+      },
+    });
   };
 
   if (loading) {
@@ -196,7 +210,10 @@ const ItemDisplay = () => {
                 name="category"
                 id="productCategory"
                 className="w-full border border-gray-200 bg-white rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200"
-                onChange={(e) => setCategory(e.target.value)}
+                onChange={(e) => {
+                  setCategory(e.target.value);
+                  fetchProductsByCategory(e.target.value);
+                }}
                 value={category || ""}
               >
                 {allCategory.map((cat) => (
